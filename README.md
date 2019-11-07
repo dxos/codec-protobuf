@@ -19,6 +19,8 @@ message Task {
 }
 ```
 
+### Using .proto files
+
 ```javascript
 import protobuf from 'protocol-buffers';
 import Codec from '@dxos/codec-protobuf';
@@ -34,6 +36,22 @@ const codec = new Codec({ verify: true });
 
   codec.decode(buffer); // { type: 'Task', message: { id: 'task-0', value: 'test' } }
 })();
+```
+
+### Using JSON descriptors
+
+```javascript
+import protobuf from 'protocol-buffers';
+import Codec from '@dxos/codec-protobuf';
+
+const codec = new Codec({ verify: true });
+
+// Load from a JSON compiled proto schema.
+codec.loadFromJSON(require('./schema.json'));
+
+const buffer = codec.encode({ type: 'Task', message: { id: 'task-0', value: 'test' } });
+
+codec.decode(buffer); // { type: 'Task', message: { id: 'task-0', value: 'test' } }
 ```
 
 ## Contributing
