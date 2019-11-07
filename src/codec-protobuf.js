@@ -15,9 +15,10 @@ const AnyType = Root.fromJSON(JSON.parse(schema)).lookupType('codecprotobuf.AnyT
 
 class Codec {
   constructor(options = {}) {
-    const { verify = false } = options;
+    const { verify = false, decodeWithType = true } = options;
 
     this._verify = verify;
+    this._decodeWithType = decodeWithType;
 
     this._root = new Root();
   }
@@ -63,16 +64,17 @@ class Codec {
     return AnyType.encode({ type: typeName, value }).finish();
   }
 
-  decode(buffer, withType = true) {
-    const obj = this.decodeWithType(buffer);
-    if (withType) {
+  decode(buffer, withType = this._decodeWithType) {
+    const obj = this._decode(buffer);
+
+    if (withType === true) {
       return obj;
     }
 
     return obj.message;
   }
 
-  decodeWithType(buffer) {
+  _decode(buffer) {
     const { type: typeName, value } = AnyType.toObject(AnyType.decode(buffer));
 
     try {

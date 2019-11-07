@@ -1,7 +1,4 @@
-# Wireline Codec Protobuf
-
-[![CircleCI](https://circleci.com/gh/wirelineio/wireline-core.svg?style=svg&circle-token=93ede761391f88aa9fffd7fd9e6fe3b552e9cf9d)](https://circleci.com/gh/wirelineio/wireline-core)
-[![npm version](https://badge.fury.io/js/%40wirelineio%2Fcodec-protobuf.svg)](https://badge.fury.io/js/%40wirelineio%2Fcodec-protobuf)
+# Codec Protobuf
 
 > Codec for protobuf to use in libraries that follows the valueEncoding API of leveldb, like hypercore.
 
@@ -14,7 +11,7 @@ and the Browser. (Most of the current bundle tooling for the Browser implements 
 ## Install
 
 ```
-$ npm install @wirelineio/codec-protobuf protocol-buffers
+$ npm install @dxos/codec-protobuf protocol-buffers
 ```
 
 ## Usage
@@ -30,23 +27,25 @@ message Task {
 
 ```javascript
 import protobuf from 'protocol-buffers';
-import hypercore from 'hypercore';
-import codecProtobuf from '@wirelineio/codec-protobuf';
+import Codec from '@dxos/codec-protobuf';
 
-const root = protobuf(fs.readFileSync('schema.proto'))
+const codec = new Codec({ verify: true });
 
-const codec = codecProtobuf(root);
+(async () => {
+  // Load from a protobufjs root.
+  const schema = await protobufjs.load('schema.proto')
+  codec.load(schema);
 
-const obj = { type: 'Task', message: { id: 'task-0', value: 'test' } };
+  const buffer = codec.encode({ type: 'Task', message: { id: 'task-0', value: 'test' } });
 
-const buffer = codec.encode(obj);
-
-codec.decode(buffer); // { type: 'Task', message: { id: 'task-0', value: 'test' } }
-
-// It's compatible with the valueEncoding option of hypercore
-const feed = hypercore('./log', { valueEncoding: codec });
-
-feed.append(obj, () => {
-  feed.head(console.log) // { type: 'Task', message: { id: 'task-0', value: 'test' } }
-});
+  codec.decode(buffer); // { type: 'Task', message: { id: 'task-0', value: 'test' } }
+})();
 ```
+
+## Contributing
+
+PRs accepted.
+
+## License
+
+GPL-3.0 © dxos
