@@ -1,0 +1,21 @@
+{
+  "nested": {
+    "codecprotobuf": {
+      "nested": {
+        "AnyType": {
+          "fields": {
+            "type": {
+              "rule": "required",
+              "type": "string",
+              "id": 1
+            },
+            "value": {
+              "type": "bytes",
+              "id": 2
+            }
+          }
+        }
+      }
+    }
+  }
+}
