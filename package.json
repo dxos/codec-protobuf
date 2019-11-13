@@ -1,6 +1,6 @@
 {
   "name": "@dxos/codec-protobuf",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Value encoding for protobuf.",
   "homepage": "https://github.com/dxos/codec-protobuf#readme",
   "bugs": {
