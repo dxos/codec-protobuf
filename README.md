@@ -84,20 +84,20 @@ Add a schema from a root Namespace object.
 
 Add a schema from a JSON object or their string representation.
 
-- `json: (Object|String)`
+- `json: (Object|string)`
 
 #### `codec.getType(type) -> (Type|null)`
 
 Get a type from the loaded schemas.
 
-- `type: String`
+- `type: string`
 
 #### `codec.encode(data) -> Buffer`
 
 Encode an object using a specific protobuf type.
 
 - `data: Object`
-  - `type: String` Type for the encoding.
+  - `type: string` Type for the encoding.
   - `message: Any` Message to encode.
 
 #### `codec.decode(buffer, withType) -> Message`
