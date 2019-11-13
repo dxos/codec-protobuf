@@ -1,3 +1,7 @@
+//
+// Copyright 2019 DxOS.
+//
+
 import protobufjs from 'protobufjs';
 
 import Codec from './codec-protobuf';
