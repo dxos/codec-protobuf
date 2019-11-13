@@ -72,7 +72,7 @@ Create a new CodecProtobuf instance.
 The options are:
 
 - `verify: boolean`: Enable the message validation. Default: `false`.
-- `decodeWithType: boolean`: Define if the decode operation should return `{ type, message }` or just `message`.
+- `decodeWithType: boolean`: Define if the decode operation should return `{ type, message }` or just `message`. Default: `true`.
 
 #### `codec.load(root) -> codec`
 
