@@ -35,13 +35,7 @@ class Codec {
   }
 
   getType (typeName) {
-    const type = this._root.lookupType(typeName);
-
-    if (!type) {
-      throw new Error(`CodecProtobuf: Message type ${typeName} not found.`);
-    }
-
-    return type;
+    return this._root.lookupType(typeName);
   }
 
   encode (obj) {
@@ -78,21 +72,10 @@ class Codec {
   _decode (buffer) {
     const { type: typeName, value } = AnyType.toObject(AnyType.decode(buffer));
 
-    try {
-      const type = this._root.lookupType(typeName);
-      const message = type.toObject(type.decode(value));
+    const type = this._root.lookupType(typeName);
+    const message = type.toObject(type.decode(value));
 
-      return { type: typeName, message };
-    } catch (err) {
-      // TODO(ashwin): Is there is better way to check if a type is supported?
-      if (err.message && err.message.startsWith('no such type:')) {
-        // Type not known, return raw buffer.
-        return { type: typeName, buffer };
-      }
-
-      // Some other error, rethrow.
-      throw err;
-    }
+    return { type: typeName, message };
   }
 }
 
