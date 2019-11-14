@@ -7,7 +7,7 @@
 [![Dependency Status](https://david-dm.org/dxos/codec-protobuf.svg)](https://david-dm.org/dxos/codec-protobuf)
 [![devDependency Status](https://david-dm.org/dxos/codec-protobuf/dev-status.svg)](https://david-dm.org/dxos/codec-protobuf#info=devDependencies)
 [![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg?style=flat-square)](https://github.com/standard/semistandard)
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme) [![Greenkeeper badge](https://badges.greenkeeper.io/dxos/codec-protobuf.svg)](https://greenkeeper.io/)
 
 This module use a custom implementation of [protobuf.js](https://github.com/protobufjs/protobuf.js) to support decode `Buffer`s in the browser.
 
