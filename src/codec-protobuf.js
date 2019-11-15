@@ -21,25 +21,27 @@ class Codec {
     const { verify = false, decodeWithType = true } = options;
 
     this._verify = verify;
+
+    // TODO(burdon): Why withType? Just have a different method (shouldn't be part of API).
     this._decodeWithType = decodeWithType;
 
     this._root = new Root();
   }
 
-  // TODO(burdon): Parse.
+  // TODO(burdon): Rename add.
   load (root) {
     this._root.addJSON(root.nested);
     return this;
   }
 
-  // TODO(burdon): load (different verb).
+  // TODO(burdon): Rename parse (different verb from parse).
   loadFromJSON (schema) {
     const root = Root.fromJSON(typeof schema === 'string' ? JSON.parse(schema) : schema);
     this.load(root);
     return this;
   }
 
-  // TODO(burdon): get operator?
+  // TODO(burdon): Use get operator?
   getType (typeName) {
     return this._root.lookupType(typeName);
   }
@@ -55,34 +57,28 @@ class Codec {
 
     if (this._verify) {
       const err = type.verify(message);
-
       if (err) {
         throw new Error(`invalid object [${err}]`);
       }
     }
 
-    const value = type.encode(message).finish();
-    return AnyType.encode({ type: typeName, value }).finish();
+    return AnyType.encode({
+      type: typeName,
+      value: type.encode(message).finish()
+    }).finish();
   }
 
-  // TODO(burdon): Why withType? Just have a different message (shouldn't be part of API).
   decode (buffer, withType = this._decodeWithType) {
-    const obj = this._decode(buffer);
-
-    if (withType === true) {
-      return obj;
-    }
-
-    return obj.message;
-  }
-
-  _decode (buffer) {
     const { type: typeName, value } = AnyType.toObject(AnyType.decode(buffer));
 
     const type = this._root.lookupType(typeName);
     const message = type.toObject(type.decode(value));
 
-    return { type: typeName, message };
+    if (withType === true) {
+      return { type: typeName, message };
+    }
+
+    return message;
   }
 }
 

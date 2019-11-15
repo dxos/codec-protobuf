@@ -1,6 +1,6 @@
 # Codec Protobuf
 
-> Codec for protobuf to use in libraries that follows the valueEncoding API of leveldb, like hypercore.
+> Codec for protobuf for use in libraries that follow the leveldb valueEncoding API (such as hypercore).
 
 [![Build Status](https://travis-ci.com/dxos/codec-protobuf.svg?branch=master)](https://travis-ci.com/dxos/codec-protobuf)
 [![Coverage Status](https://coveralls.io/repos/github/dxos/codec-protobuf/badge.svg?branch=master)](https://coveralls.io/github/dxos/codec-protobuf?branch=master)
@@ -8,7 +8,7 @@
 [![js-semistandard-style](https://img.shields.io/badge/code%20style-semistandard-brightgreen.svg?style=flat-square)](https://github.com/standard/semistandard)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme) 
 
-This module use a custom implementation of [protobuf.js](https://github.com/protobufjs/protobuf.js) to support decode `Buffer`s in the browser.
+This module uses a custom implementation of [protobuf.js](https://github.com/protobufjs/protobuf.js) to support decoding `Buffer` objects in the browser.
 
 ## Install
 
@@ -22,7 +22,7 @@ $ npm install @dxos/codec-protobuf
 syntax = "proto3";
 
 message Task {
-  required string id = 1;
+  string id = 1;
   string value = 2;
 }
 ```
@@ -30,14 +30,15 @@ message Task {
 ### Using .proto files
 
 ```javascript
-import protobuf from 'protocol-buffers';
+import protobuf from 'protobufjs/light';
 import Codec from '@dxos/codec-protobuf';
 
 const codec = new Codec({ verify: true });
 
 (async () => {
   // Load from a protobufjs root.
-  const schema = await protobufjs.load('schema.proto')
+  const schema = await protobuf.load('schema.proto');
+
   codec.load(schema);
 
   const buffer = codec.encode({ type: 'Task', message: { id: 'task-0', value: 'test' } });
@@ -49,7 +50,6 @@ const codec = new Codec({ verify: true });
 ### Using JSON descriptors
 
 ```javascript
-import protobuf from 'protocol-buffers';
 import Codec from '@dxos/codec-protobuf';
 
 const codec = new Codec({ verify: true });
