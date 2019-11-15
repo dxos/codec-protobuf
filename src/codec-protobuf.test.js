@@ -6,7 +6,7 @@ import protobufjs from 'protobufjs';
 
 import Codec from './codec-protobuf';
 
-import schemaOne from './schema-test-one.json';
+import schemaOne from './testing/schema-test-one.json';
 
 test('encode/decode message', async () => {
   let codec = new Codec();
@@ -29,12 +29,12 @@ test('encode/decode message', async () => {
   expect.assertions(15);
 
   // Load from a protobufjs root.
-  codec.load(await protobufjs.load(`${__dirname}/schema-test-two.proto`));
+  codec.load(await protobufjs.load(`${__dirname}/testing/schema-test-two.proto`));
 
   // Load from JSON.
   codec.loadFromJSON(schemaOne);
 
-  await testMessage('MessageOne');
+  await testMessage('test.MessageOne');
   await testMessage('MessageTwo');
 
   expect(() => codec.encode('foo')).toThrow(/needs to be an object/);

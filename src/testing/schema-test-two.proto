@@ -1,6 +1,7 @@
 syntax = "proto3";
+package test;
 
-message MessageOne {
+message MessageTwo {
   required string subject = 1;
   bytes body = 2;
 }

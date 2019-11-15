@@ -1,0 +1,21 @@
+{
+  "nested": {
+    "test": {
+      "nested": {
+        "MessageOne": {
+          "fields": {
+            "subject": {
+              "rule": "required",
+              "type": "string",
+              "id": 1
+            },
+            "body": {
+              "type": "bytes",
+              "id": 2
+            }
+          }
+        }
+      }
+    }
+  }
+}

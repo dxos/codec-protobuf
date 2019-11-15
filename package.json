@@ -20,7 +20,7 @@
   "scripts": {
     "build": "npm run clean && npm run build:protobuf && npm run build:babel",
     "build:babel": "babel ./src --out-dir ./dist --ignore \"**/*.test.js\" --source-maps",
-    "build:protobuf": "pbjs -t json src/schema.proto -o src/schema.json && pbjs -t json src/schema-test-one.proto -o src/schema-test-one.json",
+    "build:protobuf": "pbjs -t json src/schema.proto -o src/schema.json && pbjs -t json src/testing/schema-test-one.proto -o src/testing/schema-test-one.json",
     "clean": "del-cli dist",
     "coverage": "npm test -- --coverage",
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls",
