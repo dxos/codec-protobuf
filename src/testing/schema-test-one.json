@@ -5,7 +5,6 @@
         "MessageOne": {
           "fields": {
             "subject": {
-              "rule": "required",
               "type": "string",
               "id": 1
             },

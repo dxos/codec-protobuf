@@ -26,7 +26,7 @@
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls",
     "lint": "semistandard 'src/**/*.js'",
     "prepublishOnly": "npm run test && npm run build",
-    "test": "npm run build:protobuf && jest --verbose --passWithNoTests src",
+    "test": "npm run build:protobuf && jest --rootDir ./src --verbose",
     "posttest": "npm run lint"
   },
   "browserslist": [

@@ -1,17 +1,20 @@
 {
   "nested": {
-    "codecprotobuf": {
+    "dxos": {
       "nested": {
-        "AnyType": {
-          "fields": {
-            "type": {
-              "rule": "required",
-              "type": "string",
-              "id": 1
-            },
-            "value": {
-              "type": "bytes",
-              "id": 2
+        "codec": {
+          "nested": {
+            "AnyType": {
+              "fields": {
+                "type": {
+                  "type": "string",
+                  "id": 1
+                },
+                "value": {
+                  "type": "bytes",
+                  "id": 2
+                }
+              }
             }
           }
         }
