@@ -20,9 +20,10 @@ class Codec {
   constructor (options = {}) {
     const { verify = false, decodeWithType = true } = options;
 
+    // TODO(burdon): Rename strict?
     this._verify = verify;
 
-    // TODO(burdon): Why withType? Just have a different method (shouldn't be part of API).
+    // TODO(burdon): Remove.
     this._decodeWithType = decodeWithType;
 
     this._root = new Root();
@@ -74,6 +75,7 @@ class Codec {
     const type = this._root.lookupType(typeName);
     const message = type.toObject(type.decode(value));
 
+    // TODO(burdon): Must not have functions that have different return types based on params!
     if (withType === true) {
       return { type: typeName, message };
     }
