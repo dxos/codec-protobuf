@@ -16,6 +16,10 @@ This module uses a custom implementation of [protobuf.js](https://github.com/pro
 $ npm install @dxos/codec-protobuf
 ```
 
+// TODO(burdon): This is a great example of how code in READMEs are always out of date.
+// Remove all of this and make the actual code docs and tests relevant -- runnable docs.
+// Generate static docs from jsdoc if desired.
+
 ## Usage
 
 ```protobuf

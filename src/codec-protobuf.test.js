@@ -7,7 +7,7 @@ import protobufjs from 'protobufjs';
 import Codec from './codec-protobuf';
 
 // TODO(burdon): This gets cached.
-import schemaOne from './testing/schema-test-one.json';
+import schemaOne from './testing/test-one.json';
 
 test('encode/decode message', async () => {
   const testMessage = async (codec, type, message) => {
@@ -34,7 +34,7 @@ test('encode/decode message', async () => {
   codec.loadFromJSON(schemaOne);
 
   // Load from a protobufjs root.
-  codec.load(await protobufjs.load(`${__dirname}/testing/schema-test-two.proto`));
+  codec.load(await protobufjs.load(`${__dirname}/testing/test-two.proto`));
 
   await testMessage(codec, 'MessageOne', message);
   await testMessage(codec, 'MessageTwo', message);
