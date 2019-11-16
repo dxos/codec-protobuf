@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package dxos.codec;
 
-message AnyType {
+message Any {
   string type = 1;
   bytes value = 2;
 }

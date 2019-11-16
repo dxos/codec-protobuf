@@ -11,7 +11,7 @@ protobuf.configure();
 
 const { Root } = protobuf;
 
-const AnyType = Root.fromJSON(JSON.parse(schema)).lookupType('dxos.codec.AnyType');
+const Any = Root.fromJSON(JSON.parse(schema)).lookupType('dxos.codec.Any');
 
 /**
  * Encodes and decodes protocol buffer messages.
@@ -63,14 +63,14 @@ class Codec {
       }
     }
 
-    return AnyType.encode({
+    return Any.encode({
       type: typeName,
       value: type.encode(message).finish()
     }).finish();
   }
 
   decode (buffer, withType = this._decodeWithType) {
-    const { type: typeName, value } = AnyType.toObject(AnyType.decode(buffer));
+    const { type: typeName, value } = Any.toObject(Any.decode(buffer));
 
     const type = this._root.lookupType(typeName);
     const message = type.toObject(type.decode(value));

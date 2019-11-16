@@ -6,6 +6,7 @@ import protobufjs from 'protobufjs';
 
 import Codec from './codec-protobuf';
 
+// TODO(burdon): This gets cached.
 import schemaOne from './testing/schema-test-one.json';
 
 test('encode/decode message', async () => {
