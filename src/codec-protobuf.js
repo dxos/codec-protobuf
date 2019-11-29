@@ -2,8 +2,13 @@
 // Copyright 2019 DxOS.
 //
 
-import { Root, Type } from 'protobufjs/light';
+import protobuf from 'protobufjs/light';
 import merge from 'lodash.merge';
+
+protobuf.util.Buffer = Buffer;
+protobuf.configure();
+
+const { Root } = protobuf;
 
 /**
  * Protobuf encoder/decoder that follows the hypercore codec API (https://github.com/Level/codec).
@@ -105,7 +110,7 @@ export class Codec {
 
     try {
       // Lookup throws an error if the type doesn't exist.
-      return this._root.lookup(type, [Type]);
+      return this._root.lookup(type);
     } catch (err) {
       return null;
     }
