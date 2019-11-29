@@ -4,7 +4,7 @@
 
 syntax = "proto3";
 
-package testing.types;
+package testing;
 
 import "google/protobuf/any.proto";
 

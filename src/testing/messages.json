@@ -2,20 +2,16 @@
   "nested": {
     "testing": {
       "nested": {
-        "messages": {
-          "nested": {
-            "Message": {
-              "fields": {
-                "bucketId": {
-                  "type": "string",
-                  "id": 1
-                },
-                "payload": {
-                  "rule": "repeated",
-                  "type": "google.protobuf.Any",
-                  "id": 2
-                }
-              }
+        "Message": {
+          "fields": {
+            "bucketId": {
+              "type": "string",
+              "id": 1
+            },
+            "payload": {
+              "rule": "repeated",
+              "type": "google.protobuf.Any",
+              "id": 2
             }
           }
         }
