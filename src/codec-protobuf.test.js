@@ -155,11 +155,10 @@ test('encoding/decoding (missing type)', () => {
 
     // Partially decode with missing type defs.
     const { schema } = codec;
-    delete schema.nested.testing.nested.Data;
+    delete schema.nested.testing.nested.types.nested.Data;
     const partialCodec = new Codec(rootTypeUrl).addJson(schema).build();
 
     const received = partialCodec.decodeByType(buffer, '.testing.messages.Message', { recursive: true, strict: false });
-    console.log(received);
     expect(received).not.toEqual(message);
 
     // Fully decode remaining.
@@ -167,8 +166,10 @@ test('encoding/decoding (missing type)', () => {
     expect(received).toEqual(message);
   };
 
-  const filter = '$..*[?(@property === "__type_url" && @ === ".testing.Data")]';
-  messages.filter(message => JSONPath({ path: filter, json: message }).length).forEach((message) => {
-    test(message);
-  });
+  const filter = '$..*[?(@property === "__type_url" && @ === ".testing.types.Data")]';
+  messages
+    .filter(message => JSONPath({ path: filter, json: message }).length)
+    .forEach((message) => {
+      test(message);
+    });
 });
