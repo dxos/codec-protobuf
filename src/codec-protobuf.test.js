@@ -2,50 +2,173 @@
 // Copyright 2019 DxOS.
 //
 
-import protobufjs from 'protobufjs';
+import { JSONPath } from 'jsonpath-plus';
 
-import Codec from './codec-protobuf';
+import { Codec } from './codec-protobuf';
 
-import schemaOne from './schema-test-one.json';
+const rootTypeUrl = '.testing.messages.Message';
 
-test('encode/decode message', async () => {
-  let codec = new Codec();
+const codec = new Codec(rootTypeUrl)
+  .addJson(require('./testing/messages.json'))
+  .addJson(require('./testing/types.json'))
+  .build();
 
-  const message = { subject: 'hi', body: Buffer.from('how are you?') };
+const messages = [
 
-  const testMessage = async (type) => {
-    const buffer = codec.encode({ type, message });
+  {
+    bucketId: 'bucket-1'
+  },
 
-    expect(Buffer.isBuffer(buffer)).toBe(true);
+  {
+    bucketId: 'bucket-1',
+    payload: [
+      {
+        __type_url: '.testing.types.Meta',
+        version: '0.0.1'
+      }
+    ]
+  },
 
-    const { message: messageDecoded, type: typeDecoded } = codec.decode(buffer);
+  {
+    bucketId: 'bucket-1',
+    payload: [
+      {
+        __type_url: '.testing.types.Meta',
+        version: '0.0.1'
+      },
+      {
+        __type_url: '.testing.types.Data',
+        value: {
+          boolValue: true
+        }
+      }
+    ]
+  },
 
-    expect(typeDecoded).toBe(type);
-    expect(messageDecoded).toEqual(message);
-    expect(codec.decode(buffer, false)).toEqual(message);
-    expect(Buffer.isBuffer(messageDecoded.body)).toBe(true);
+  {
+    bucketId: 'bucket-1',
+    payload: [
+      {
+        // Nested.
+        __type_url: '.testing.types.Container',
+        tags: ['system'],
+        data: [
+          {
+            __type_url: '.testing.types.Meta',
+            version: '0.0.1'
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    bucketId: 'bucket-1',
+    payload: [
+      {
+        // Nested.
+        __type_url: '.testing.types.Container',
+        tags: ['system'],
+        data: [
+          {
+            __type_url: '.testing.types.Meta',
+            version: '0.0.1'
+          }
+        ]
+      },
+      {
+        __type_url: '.testing.types.Meta',
+        version: '0.0.1'
+      },
+      {
+        __type_url: '.testing.types.Data',
+        value: {
+          boolValue: true
+        }
+      }
+    ]
+  }
+];
+
+test('types', () => {
+  const type = codec.getType('.testing.messages.Message');
+  expect(type).not.toBeNull();
+});
+
+test('encoding/decoding (basic)', () => {
+  const test = (message) => {
+    const buffer = codec.encode(message);
+    const received = codec.decode(buffer);
+    expect(received).toEqual(message);
   };
 
-  expect.assertions(15);
+  messages.forEach(message => test(message));
+});
 
-  // Load from a protobufjs root.
-  codec.load(await protobufjs.load(`${__dirname}/schema-test-two.proto`));
+test('encoding/decoding (ANY)', () => {
+  const test = (message) => {
+    const buffer = codec.encode(message);
+    const received = codec.decode(buffer);
+    expect(received).toEqual(message);
+  };
 
-  // Load from JSON.
-  codec.loadFromJSON(schemaOne);
+  messages.forEach(message => test(message));
+});
 
-  await testMessage('MessageOne');
-  await testMessage('MessageTwo');
+test('encoding/decoding (nested)', () => {
+  const test = (message) => {
+    const buffer = codec.encode(message);
+    const received = codec.decode(buffer);
+    expect(received).toEqual(message);
+  };
 
-  expect(() => codec.encode('foo')).toThrow(/needs to be an object/);
-  expect(() => codec.encode({ type: 'foo', message })).toThrow(/no such type/);
-  expect(() => codec.decode(Buffer.from('foo'))).toThrow(/invalid wire type/);
+  messages.forEach(message => test(message));
+});
 
-  codec = new Codec({ verify: true });
-  codec.loadFromJSON(schemaOne);
-  expect(() => codec.encode({ type: 'MessageOne', message: { foo: 'not valid' } })).toThrow(/Verify error/);
+test('encoding/decoding (non-recursive)', () => {
+  const test = (message) => {
+    const buffer = codec.encode(message);
 
-  codec = new Codec({ decodeWithType: false });
-  codec.loadFromJSON(JSON.parse(schemaOne));
-  expect(codec.decode(codec.encode({ type: 'MessageOne', message }))).toEqual(message);
+    // Partially decode buffer.
+    const received = codec.decodeByType(buffer, '.testing.messages.Message', { recursive: false });
+    expect(received.bucketId).toEqual('bucket-1');
+
+    received.payload.forEach(({ type_url: typeUrl, value }) => {
+      expect(typeUrl).not.toBeNull();
+      expect(value).not.toBeNull();
+    });
+
+    // Fully decode remaining.
+    codec.decodeObject(received, '.testing.messages.Message');
+    expect(received).toEqual(message);
+  };
+
+  const filter = '$..payload';
+  messages.filter(message => JSONPath({ path: filter, json: message }).length).forEach((message) => {
+    test(message);
+  });
+});
+
+test('encoding/decoding (missing type)', () => {
+  const test = (message) => {
+    const buffer = codec.encode(message);
+
+    // Partially decode with missing type defs.
+    const { schema } = codec;
+    delete schema.nested.testing.nested.Data;
+    const partialCodec = new Codec(rootTypeUrl).addJson(schema).build();
+
+    const received = partialCodec.decodeByType(buffer, '.testing.messages.Message', { recursive: true, strict: false });
+    console.log(received);
+    expect(received).not.toEqual(message);
+
+    // Fully decode remaining.
+    codec.decodeObject(received, '.testing.messages.Message');
+    expect(received).toEqual(message);
+  };
+
+  const filter = '$..*[?(@property === "__type_url" && @ === ".testing.Data")]';
+  messages.filter(message => JSONPath({ path: filter, json: message }).length).forEach((message) => {
+    test(message);
+  });
 });

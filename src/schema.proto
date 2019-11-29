@@ -1,7 +1,0 @@
-syntax = "proto3";
-package codecprotobuf;
-
-message AnyType {
-  required string type = 1;
-  bytes value = 2;
-}

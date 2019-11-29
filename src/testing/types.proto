@@ -1,0 +1,30 @@
+//
+// Copyright 2019 DxOS.
+//
+
+syntax = "proto3";
+
+package testing.types;
+
+import "google/protobuf/any.proto";
+
+message Container {
+  repeated string tags = 1;
+  repeated google.protobuf.Any data = 2;
+}
+
+message Meta {
+  string version = 1;
+}
+
+message Value {
+  oneof type {
+    bool boolValue = 1;
+    int32 intValue = 2;
+    string stringValue = 3;
+  }
+}
+
+message Data {
+  Value value = 1;
+}
