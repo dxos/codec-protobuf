@@ -16,11 +16,11 @@
     "index.js"
   ],
   "main": "index.js",
-  "browser": "dist/codec-protobuf.js",
+  "browser": "dist/index.js",
   "scripts": {
-    "build": "npm run clean && npm run build:protobuf && npm run build:babel",
+    "build": "npm run clean && npm run build:babel",
     "build:babel": "babel ./src --out-dir ./dist --ignore \"**/*.test.js\" --source-maps",
-    "build:protobuf": "pbjs -t json src/schema.proto -o src/schema.json && pbjs -t json src/schema-test-one.proto -o src/schema-test-one.json",
+    "build:protobuf": "pbjs -t json ./src/testing/messages.proto -o ./src/testing/messages.json && pbjs -t json ./src/testing/types.proto -o ./src/testing/types.json",
     "clean": "del-cli dist",
     "coverage": "npm test -- --coverage",
     "coveralls": "npm run coverage && cat ./coverage/lcov.info | coveralls",
@@ -33,12 +33,14 @@
     "> 5%"
   ],
   "dependencies": {
+    "lodash.merge": "^4.6.2",
     "protobufjs": "https://github.com/wirelineio/protobuf.js#wireline-dist",
     "source-map-support": "^0.5.12"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
     "@babel/core": "^7.4.5",
+    "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-proposal-export-default-from": "^7.5.2",
     "@babel/preset-env": "^7.4.5",
     "babel-eslint": "^10.0.2",
@@ -48,6 +50,7 @@
     "coveralls": "^3.0.7",
     "del-cli": "^3.0.0",
     "jest": "^24.5.0",
+    "jsonpath-plus": "^2.0.0",
     "semistandard": "^14.2.0"
   },
   "publishConfig": {

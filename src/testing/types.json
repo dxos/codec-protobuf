@@ -1,0 +1,83 @@
+{
+  "nested": {
+    "testing": {
+      "nested": {
+        "Container": {
+          "fields": {
+            "tags": {
+              "rule": "repeated",
+              "type": "string",
+              "id": 1
+            },
+            "data": {
+              "rule": "repeated",
+              "type": "google.protobuf.Any",
+              "id": 2
+            }
+          }
+        },
+        "Meta": {
+          "fields": {
+            "version": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "Value": {
+          "oneofs": {
+            "type": {
+              "oneof": [
+                "boolValue",
+                "intValue",
+                "stringValue"
+              ]
+            }
+          },
+          "fields": {
+            "boolValue": {
+              "type": "bool",
+              "id": 1
+            },
+            "intValue": {
+              "type": "int32",
+              "id": 2
+            },
+            "stringValue": {
+              "type": "string",
+              "id": 3
+            }
+          }
+        },
+        "Data": {
+          "fields": {
+            "value": {
+              "type": "Value",
+              "id": 1
+            }
+          }
+        }
+      }
+    },
+    "google": {
+      "nested": {
+        "protobuf": {
+          "nested": {
+            "Any": {
+              "fields": {
+                "type_url": {
+                  "type": "string",
+                  "id": 1
+                },
+                "value": {
+                  "type": "bytes",
+                  "id": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
