@@ -5,7 +5,7 @@
 import protobuf from 'protobufjs/light';
 import merge from 'lodash.merge';
 
-protobuf.util.Buffer = Buffer;
+protobuf.util.Buffer = Buffer || require('buffer');
 protobuf.configure();
 
 const { Root } = protobuf;
