@@ -6,7 +6,7 @@ import { JSONPath } from 'jsonpath-plus';
 
 import { Codec } from './codec-protobuf';
 
-const rootTypeUrl = '.testing.Message';
+const rootTypeUrl = 'testing.Message';
 
 const codec = new Codec(rootTypeUrl)
   .addJson(require('./testing/messages.json'))
@@ -23,7 +23,7 @@ const messages = [
     bucketId: 'bucket-1',
     payload: [
       {
-        __type_url: '.testing.Meta',
+        __type_url: 'testing.Meta',
         version: '0.0.1'
       }
     ]
@@ -33,11 +33,11 @@ const messages = [
     bucketId: 'bucket-1',
     payload: [
       {
-        __type_url: '.testing.Meta',
+        __type_url: 'testing.Meta',
         version: '0.0.1'
       },
       {
-        __type_url: '.testing.Data',
+        __type_url: 'testing.Data',
         value: {
           boolValue: true
         }
@@ -50,11 +50,11 @@ const messages = [
     payload: [
       {
         // Nested.
-        __type_url: '.testing.Container',
+        __type_url: 'testing.Container',
         tags: ['system'],
         data: [
           {
-            __type_url: '.testing.Meta',
+            __type_url: 'testing.Meta',
             version: '0.0.1'
           }
         ]
@@ -67,21 +67,21 @@ const messages = [
     payload: [
       {
         // Nested.
-        __type_url: '.testing.Container',
+        __type_url: 'testing.Container',
         tags: ['system'],
         data: [
           {
-            __type_url: '.testing.Meta',
+            __type_url: 'testing.Meta',
             version: '0.0.1'
           }
         ]
       },
       {
-        __type_url: '.testing.Meta',
+        __type_url: 'testing.Meta',
         version: '0.0.1'
       },
       {
-        __type_url: '.testing.Data',
+        __type_url: 'testing.Data',
         value: {
           boolValue: true
         }
@@ -91,7 +91,7 @@ const messages = [
 ];
 
 test('types', () => {
-  const type = codec.getType('.testing.Message');
+  const type = codec.getType('testing.Message');
   expect(type).not.toBeNull();
 });
 
@@ -130,7 +130,7 @@ test('encoding/decoding (non-recursive)', () => {
     const buffer = codec.encode(message);
 
     // Partially decode buffer.
-    const received = codec.decodeByType(buffer, '.testing.Message', { recursive: false });
+    const received = codec.decodeByType(buffer, 'testing.Message', { recursive: false });
     expect(received.bucketId).toEqual('bucket-1');
 
     received.payload.forEach(({ type_url: typeUrl, value }) => {
@@ -139,7 +139,7 @@ test('encoding/decoding (non-recursive)', () => {
     });
 
     // Fully decode remaining.
-    codec.decodeObject(received, '.testing.Message');
+    codec.decodeObject(received, 'testing.Message');
     expect(received).toEqual(message);
   };
 
@@ -158,15 +158,15 @@ test('encoding/decoding (missing type)', () => {
     delete schema.nested.testing.nested.Data;
     const partialCodec = new Codec(rootTypeUrl).addJson(schema).build();
 
-    const received = partialCodec.decodeByType(buffer, '.testing.Message', { recursive: true, strict: false });
+    const received = partialCodec.decodeByType(buffer, 'testing.Message', { recursive: true, strict: false });
     expect(received).not.toEqual(message);
 
     // Fully decode remaining.
-    codec.decodeObject(received, '.testing.Message');
+    codec.decodeObject(received, 'testing.Message');
     expect(received).toEqual(message);
   };
 
-  const filter = '$..*[?(@property === "__type_url" && @ === ".testing.Data")]';
+  const filter = '$..*[?(@property === "__type_url" && @ === "testing.Data")]';
   messages
     .filter(message => JSONPath({ path: filter, json: message }).length)
     .forEach((message) => {
