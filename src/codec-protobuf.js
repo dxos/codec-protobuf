@@ -178,21 +178,12 @@ export class Codec {
       const { type: fieldType, repeated } = type.fields[field];
 
       if (fieldType === 'google.protobuf.Any') {
-        const encodeAny = (any) => {
-          const { __type_url: typeUrl } = any;
-
-          return {
-            type_url: typeUrl,
-            value: this.encodeByType(any, typeUrl)
-          };
-        };
-
         // NOTE: Each ANY is separately encoded so that it can be optionally decoded (e.g., if the type is not known).
         if (value[field]) {
           if (repeated) {
-            object[field] = value[field].map(value => encodeAny(value));
+            object[field] = value[field].map(value => this._encodeAny(value));
           } else {
-            object[field] = encodeAny(value[field]);
+            object[field] = this._encodeAny(value[field]);
           }
         }
       }
@@ -265,39 +256,48 @@ export class Codec {
       const { type: fieldType, repeated } = type.fields[field];
 
       if (fieldType === 'google.protobuf.Any' && options.recursive) {
-        const decodeAny = (any) => {
-          // Test if already decoded.
-          if (any.__type_url) {
-            return any;
-          }
-
-          // Check known type, otherwise leave decoded ANY object in place.
-          const { type_url: typeUrl, value: buffer } = any;
-          const type = this.getType(typeUrl);
-          if (!type) {
-            if (options.strict) {
-              throw new Error(`Unknown type: ${typeUrl}`);
-            }
-
-            return any;
-          }
-
-          // Recursively decode the object.
-          return Object.assign(this.decodeByType(buffer, typeUrl, options), {
-            __type_url: typeUrl
-          });
-        };
-
         if (object[field] !== undefined) {
           if (repeated) {
-            object[field] = object[field].map(any => decodeAny(any));
+            object[field] = object[field].map(any => this._decodeAny(any, options));
           } else {
-            object[field] = decodeAny(object[field]);
+            object[field] = this._decodeAny(object[field], options);
           }
         }
       }
     }
 
     return object;
+  }
+
+  _encodeAny (any) {
+    const { __type_url: typeUrl } = any;
+
+    return {
+      type_url: typeUrl,
+      value: this.encodeByType(any, typeUrl)
+    };
+  }
+
+  _decodeAny (any, options) {
+    // Test if already decoded.
+    if (any.__type_url) {
+      return any;
+    }
+
+    // Check known type, otherwise leave decoded ANY object in place.
+    const { type_url: typeUrl, value: buffer } = any;
+    const type = this.getType(typeUrl);
+    if (!type) {
+      if (options.strict) {
+        throw new Error(`Unknown type: ${typeUrl}`);
+      }
+
+      return any;
+    }
+
+    // Recursively decode the object.
+    return Object.assign(this.decodeByType(buffer, typeUrl, options), {
+      __type_url: typeUrl
+    });
   }
 }
