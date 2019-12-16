@@ -2,8 +2,11 @@
 // Copyright 2019 DxOS.
 //
 
+import assert from 'assert';
 import protobuf from 'protobufjs/light';
 import merge from 'lodash.merge';
+
+import anySchema from './any';
 
 protobuf.util.Buffer = Buffer || require('buffer');
 protobuf.configure();
@@ -20,7 +23,7 @@ const { Root } = protobuf;
  *
  * This module decodes types matching the `type_url` property that are present in the dictionary.
  * In order to provide a natural JSON data structure (i.e., not embed `{ type_url, value  }`) in the JSON object,
- * the type value is set in the `__type_url` property of the underlying object.
+ * the type value is set in the `__typeurl` property of the underlying object.
  *
  * NOTE: Internally, protobufjs uses a `@type` property on the non-JSON objects.
  *
@@ -40,7 +43,7 @@ const { Root } = protobuf;
  * {
  *   bucketId: 'bucket-1',
  *   payload: [{
- *     __type_url: 'testing.Meta',
+ *     __typeurl: 'testing.Meta',
  *     version: '0.0.1'
  *   }]
  * }
@@ -68,16 +71,13 @@ export class Codec {
   _builded = false
 
   /**
-   * @param rootTypeUrl - Root type.
-   * @param options
-   * @param options.recursive - Recursively decode the buffer.
-   * @param options.strict - Throw an exception if the type is not found.
+   * @param {Object} [options]
+   * @param {boolean} options.recursive - Recursively decode the buffer.
+   * @param {boolean} options.strict - Throw an exception if the type is not found.
    */
-  constructor (rootTypeUrl, options = {}) {
-    console.assert(rootTypeUrl);
-
-    this._rootTypeUrl = rootTypeUrl;
+  constructor (options = {}) {
     this._options = { recursive: true, strict: true, ...options };
+    this._any = Root.fromJSON(anySchema).lookup('google.protobuf.Any');
   }
 
   /**
@@ -103,7 +103,11 @@ export class Codec {
    * @return {Type} The type object or null if not found.
    */
   getType (type) {
-    console.assert(type, 'Missing type');
+    if (!type) {
+      console.warn('Missing type.');
+      return null;
+    }
+
     if (!this._root) {
       return null;
     }
@@ -122,7 +126,7 @@ export class Codec {
    * @return {Codec}
    */
   addJson (json) {
-    console.assert(typeof json === 'object');
+    assert(typeof json === 'object');
     this._json = merge(this._json, json);
     this._builded = false;
     return this;
@@ -145,7 +149,12 @@ export class Codec {
    * @return {Buffer}
    */
   encode (value) {
-    return this.encodeByType(value, this._rootTypeUrl);
+    assert(value.__typeurl);
+
+    return this._any.encode({
+      type_url: value.__typeurl,
+      value: this.encodeByType(value, value.__typeurl)
+    }).finish();
   }
 
   /**
@@ -161,10 +170,7 @@ export class Codec {
     }
 
     if (!typeUrl) {
-      typeUrl = value.__type_url;
-      if (!typeUrl) {
-        throw new Error('Missing __type_url attribute');
-      }
+      throw new Error('Missing __typeurl attribute');
     }
 
     const type = this.getType(typeUrl);
@@ -178,21 +184,12 @@ export class Codec {
       const { type: fieldType, repeated } = type.fields[field];
 
       if (fieldType === 'google.protobuf.Any') {
-        const encodeAny = (any) => {
-          const { __type_url: typeUrl } = any;
-
-          return {
-            type_url: typeUrl,
-            value: this.encodeByType(any, typeUrl)
-          };
-        };
-
         // NOTE: Each ANY is separately encoded so that it can be optionally decoded (e.g., if the type is not known).
         if (value[field]) {
           if (repeated) {
-            object[field] = value[field].map(value => encodeAny(value));
+            object[field] = value[field].map(value => this._encodeAny(value));
           } else {
-            object[field] = encodeAny(value[field]);
+            object[field] = this._encodeAny(value[field]);
           }
         }
       }
@@ -208,7 +205,10 @@ export class Codec {
    * @return {Object}
    */
   decode (buffer) {
-    return this.decodeByType(buffer, this._rootTypeUrl, this._options);
+    const { type_url: typeUrl, value } = this._any.toObject(this._any.decode(buffer));
+    const result = this.decodeByType(value, typeUrl, this._options);
+    result.__typeurl = typeUrl;
+    return result;
   }
 
   /**
@@ -265,39 +265,48 @@ export class Codec {
       const { type: fieldType, repeated } = type.fields[field];
 
       if (fieldType === 'google.protobuf.Any' && options.recursive) {
-        const decodeAny = (any) => {
-          // Test if already decoded.
-          if (any.__type_url) {
-            return any;
-          }
-
-          // Check known type, otherwise leave decoded ANY object in place.
-          const { type_url: typeUrl, value: buffer } = any;
-          const type = this.getType(typeUrl);
-          if (!type) {
-            if (options.strict) {
-              throw new Error(`Unknown type: ${typeUrl}`);
-            }
-
-            return any;
-          }
-
-          // Recursively decode the object.
-          return Object.assign(this.decodeByType(buffer, typeUrl, options), {
-            __type_url: typeUrl
-          });
-        };
-
         if (object[field] !== undefined) {
           if (repeated) {
-            object[field] = object[field].map(any => decodeAny(any));
+            object[field] = object[field].map(any => this._decodeAny(any, options));
           } else {
-            object[field] = decodeAny(object[field]);
+            object[field] = this._decodeAny(object[field], options);
           }
         }
       }
     }
 
     return object;
+  }
+
+  _encodeAny (any) {
+    const { __typeurl: typeUrl } = any;
+
+    return {
+      type_url: typeUrl,
+      value: this.encodeByType(any, typeUrl)
+    };
+  }
+
+  _decodeAny (any, options) {
+    // Test if already decoded.
+    if (any.__typeurl) {
+      return any;
+    }
+
+    // Check known type, otherwise leave decoded ANY object in place.
+    const { type_url: typeUrl, value: buffer } = any;
+    const type = this.getType(typeUrl);
+    if (!type) {
+      if (options.strict) {
+        throw new Error(`Unknown type: ${typeUrl}`);
+      }
+
+      return any;
+    }
+
+    // Recursively decode the object.
+    const result = this.decodeByType(buffer, typeUrl, options);
+    result.__typeurl = typeUrl;
+    return result;
   }
 }

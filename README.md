@@ -33,7 +33,7 @@ message Task {
 import protobufjs from 'protobufjs';
 import { Codec } from '@dxos/codec-protobuf';
 
-const codec = new Codec('Task');
+const codec = new Codec();
 
 (async () => {
   // Load from a protobufjs root.
@@ -41,9 +41,9 @@ const codec = new Codec('Task');
     .addJson(await protobufjs.load('schema.proto'))
     .build();
 
-  const buffer = codec.encode({ id: 'task-0', title: 'test' });
+  const buffer = codec.encode({ __typeurl: 'Task', id: 'task-0', title: 'test' });
 
-  codec.decode(buffer); // { id: 'task-0', title: 'test' }
+  codec.decode(buffer); // { __typeurl: 'Task', id: 'task-0', title: 'test' }
 })();
 ```
 
@@ -60,20 +60,17 @@ codec
   .addJson(require('./schema.json'))
   .build();
 
-const buffer = codec.encode({ id: 'task-0', title: 'test' });
+const buffer = codec.encode({ __typeurl: 'Task', id: 'task-0', title: 'test' });
 
-codec.decode(buffer); // { id: 'task-0', title: 'test' }
+codec.decode(buffer); // { __typeurl: 'Task', id: 'task-0', title: 'test' }
 ```
 
 ## API
 
-#### `const codec = new Codec(rootTypeUrl, [options])`
+#### `const codec = new Codec([options])`
 
 Create a new CodecProtobuf instance.
 
-The options are:
-
-- `rootTypeUrl: string`: Defines the root type message to encode/decode messages. Required.
 - `options: Object`
   - `recursive: boolean`: Recursively decode the buffer. Default: `true`.
   - `strict: boolean`: Throw an exception if the type is not found. Default: `true`.
