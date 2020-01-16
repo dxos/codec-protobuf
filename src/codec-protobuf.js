@@ -160,34 +160,23 @@ export class Codec {
       console.warn('Last JSON schema is not builded');
     }
 
-    if (!typeUrl) {
-      typeUrl = value.__type_url;
-      if (!typeUrl) {
-        throw new Error('Missing __type_url attribute');
-      }
-    }
-
     const type = this.getType(typeUrl);
     if (!type) {
       throw new Error(`Unknown type: ${typeUrl}`);
     }
 
-    const object = Object.assign({}, value);
-
-    for (const field in type.fields) {
-      const { type: fieldType, repeated } = type.fields[field];
-
-      if (fieldType === 'google.protobuf.Any') {
-        // NOTE: Each ANY is separately encoded so that it can be optionally decoded (e.g., if the type is not known).
-        if (value[field]) {
-          if (repeated) {
-            object[field] = value[field].map(value => this._encodeAny(value));
-          } else {
-            object[field] = this._encodeAny(value[field]);
-          }
-        }
+    const object = this._iterate(value, value => {
+      if (!value.__type_url) {
+        return;
       }
-    }
+
+      const { __type_url: typeUrl, ...formalValue } = value;
+
+      return {
+        type_url: typeUrl,
+        value: this.encodeByType(formalValue, typeUrl)
+      };
+    });
 
     return type.encode(object).finish();
   }
@@ -233,11 +222,11 @@ export class Codec {
   /**
    * Decode partially decoded object. Looks for
    *
-   * @param {Object} object - JSON object to decode.
+   * @param {Object} value - JSON object to decode.
    * @param {string} typeUrl
    * @param {Object} [options]
    */
-  decodeObject (object, typeUrl, options = { recursive: true, strict: true }) {
+  decodeObject (value, typeUrl, options = { recursive: true, strict: true }) {
     if (!this._builded) {
       console.warn('Last JSON schema is not builded');
     }
@@ -247,57 +236,68 @@ export class Codec {
       if (options.strict) {
         throw new Error(`Unknown type: ${typeUrl}`);
       } else {
-        return object;
+        return value;
       }
     }
 
-    /* eslint guard-for-in: "off" */
-    for (const field in type.fields) {
-      const { type: fieldType, repeated } = type.fields[field];
+    const object = this._iterate(value, value => {
+      // Test if already decoded.
+      if (value.__type_url) {
+        return value;
+      }
 
-      if (fieldType === 'google.protobuf.Any' && options.recursive) {
-        if (object[field] !== undefined) {
-          if (repeated) {
-            object[field] = object[field].map(any => this._decodeAny(any, options));
-          } else {
-            object[field] = this._decodeAny(object[field], options);
-          }
+      if (!value.type_url) {
+        return;
+      }
+
+      // Check known type, otherwise leave decoded ANY object in place.
+      const { type_url: typeUrl, value: buffer } = value;
+      const type = this.getType(typeUrl);
+      if (!type) {
+        if (options.strict) {
+          throw new Error(`Unknown type: ${typeUrl}`);
         }
+
+        return value;
       }
-    }
+
+      // Recursively decode the object.
+      return Object.assign(this.decodeByType(buffer, typeUrl, options), {
+        __type_url: typeUrl
+      });
+    });
 
     return object;
   }
 
-  _encodeAny (any) {
-    const { __type_url: typeUrl } = any;
+  _iterate (value, callback) {
+    if (typeof value !== 'object') return value;
 
-    return {
-      type_url: typeUrl,
-      value: this.encodeByType(any, typeUrl)
-    };
-  }
+    let tmp;
+    let prop;
+    const str = Object.prototype.toString.call(value);
 
-  _decodeAny (any, options) {
-    // Test if already decoded.
-    if (any.__type_url) {
-      return any;
-    }
-
-    // Check known type, otherwise leave decoded ANY object in place.
-    const { type_url: typeUrl, value: buffer } = any;
-    const type = this.getType(typeUrl);
-    if (!type) {
-      if (options.strict) {
-        throw new Error(`Unknown type: ${typeUrl}`);
+    if (str === '[object Object]') {
+      const result = callback(value);
+      if (result) {
+        return result;
       }
 
-      return any;
+      tmp = {};
+      for (prop in value) {
+        tmp[prop] = this._iterate(value[prop], callback);
+      }
+      return tmp;
     }
 
-    // Recursively decode the object.
-    return Object.assign(this.decodeByType(buffer, typeUrl, options), {
-      __type_url: typeUrl
-    });
+    if (str === '[object Array]') {
+      prop = value.length;
+      for (tmp = new Array(prop); prop--;) {
+        tmp[prop] = this._iterate(value[prop], callback);
+      }
+      return tmp;
+    }
+
+    return value;
   }
 }

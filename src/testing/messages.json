@@ -2,16 +2,27 @@
   "nested": {
     "testing": {
       "nested": {
-        "Message": {
+        "AnyNumber": {
           "fields": {
-            "bucketId": {
+            "value": {
+              "type": "int32",
+              "id": 1
+            }
+          }
+        },
+        "AnyString": {
+          "fields": {
+            "value": {
               "type": "string",
               "id": 1
-            },
-            "payload": {
-              "rule": "repeated",
+            }
+          }
+        },
+        "AnyData": {
+          "fields": {
+            "value": {
               "type": "google.protobuf.Any",
-              "id": 2
+              "id": 1
             }
           }
         }

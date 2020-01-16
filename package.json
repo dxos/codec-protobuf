@@ -51,7 +51,6 @@
     "coveralls": "^3.0.7",
     "del-cli": "^3.0.0",
     "jest": "^24.5.0",
-    "jsonpath-plus": "^2.0.0",
     "semistandard": "^14.2.0"
   },
   "publishConfig": {

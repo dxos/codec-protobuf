@@ -2,174 +2,118 @@
 // Copyright 2019 DxOS.
 //
 
-import { JSONPath } from 'jsonpath-plus';
-
 import { Codec } from './codec-protobuf';
 
-const rootTypeUrl = 'testing.Message';
+const rootTypeUrl = 'testing.Container';
 
 const codec = new Codec(rootTypeUrl)
-  .addJson(require('./testing/messages.json'))
   .addJson(require('./testing/types.json'))
+  .addJson(require('./testing/messages.json'))
   .build();
 
-const messages = [
-
-  {
-    bucketId: 'bucket-1'
-  },
-
-  {
-    bucketId: 'bucket-1',
-    payload: [
-      {
-        __type_url: 'testing.Meta',
-        version: '0.0.1'
-      }
-    ]
-  },
-
-  {
-    bucketId: 'bucket-1',
-    payload: [
-      {
-        __type_url: 'testing.Meta',
-        version: '0.0.1'
-      },
-      {
-        __type_url: 'testing.Data',
-        value: {
-          boolValue: true
-        }
-      }
-    ]
-  },
-
-  {
-    bucketId: 'bucket-1',
-    payload: [
-      {
-        // Nested.
-        __type_url: 'testing.Container',
-        tags: ['system'],
-        data: [
-          {
-            __type_url: 'testing.Meta',
-            version: '0.0.1'
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    bucketId: 'bucket-1',
-    payload: [
-      {
-        // Nested.
-        __type_url: 'testing.Container',
-        tags: ['system'],
-        data: [
-          {
-            __type_url: 'testing.Meta',
-            version: '0.0.1'
-          }
-        ]
-      },
-      {
-        __type_url: 'testing.Meta',
-        version: '0.0.1'
-      },
-      {
-        __type_url: 'testing.Data',
-        value: {
-          boolValue: true
-        }
-      }
-    ]
-  }
-];
-
 test('types', () => {
-  const type = codec.getType('testing.Message');
+  const type = codec.getType('testing.AnyString');
   expect(type).not.toBeNull();
 });
 
-test('encoding/decoding (basic)', () => {
-  const test = (message) => {
-    const buffer = codec.encode(message);
-    const received = codec.decode(buffer);
-    expect(received).toEqual(message);
+test('encode/decode', () => {
+  const message = {
+    id: 'id1',
+    data: {
+      __type_url: 'testing.CustomType',
+      value: 'value1',
+      data: {
+        __type_url: 'testing.CustomType',
+        data: {
+          __type_url: 'testing.AnyNumber',
+          value: 1
+        }
+      }
+    },
+    repeatedData: [{
+      __type_url: 'testing.AnyNumber',
+      value: 1
+    }, {
+      __type_url: 'testing.AnyString',
+      value: 'value1'
+    }, {
+      __type_url: 'testing.AnyData',
+      value: {
+        __type_url: 'testing.AnyData',
+        value: {
+          __type_url: 'testing.AnyNumber',
+          value: 1
+        }
+      }
+    }],
+    customType: {
+      value: 'value1',
+      data: {
+        __type_url: 'testing.CustomType',
+        data: {
+          __type_url: 'testing.AnyNumber',
+          value: 1
+        }
+      }
+    },
+    repeatedCustomType: [{
+      value: 'value1',
+      data: {
+        __type_url: 'testing.CustomType',
+        data: {
+          __type_url: 'testing.AnyNumber',
+          value: 1
+        }
+      }
+    }, {
+      value: 'value2'
+    }]
   };
 
-  messages.forEach(message => test(message));
+  const buff = codec.encode(message);
+  expect(codec.decode(buff)).toEqual(message);
 });
 
-test('encoding/decoding (ANY)', () => {
-  const test = (message) => {
-    const buffer = codec.encode(message);
-    const received = codec.decode(buffer);
-    expect(received).toEqual(message);
+test('encode error if type not found', () => {
+  const message = {
+    data: {
+      __type_url: 'NotFound',
+      value: 'value1'
+    }
   };
 
-  messages.forEach(message => test(message));
+  expect(() => codec.encode(message)).toThrow(/Unknown type/);
 });
 
-test('encoding/decoding (nested)', () => {
-  const test = (message) => {
-    const buffer = codec.encode(message);
-    const received = codec.decode(buffer);
-    expect(received).toEqual(message);
+test('decode using strict = true|false', () => {
+  const message = {
+    data: {
+      __type_url: 'testing.AnyNumber',
+      value: 1
+    }
   };
 
-  messages.forEach(message => test(message));
+  const buff = codec.encode(message);
+
+  const codec2 = new Codec(rootTypeUrl)
+    .addJson(require('./testing/types.json'))
+    .build();
+  expect(() => codec2.decode(buff)).toThrow(/Unknown type/);
+
+  const codec3 = new Codec(rootTypeUrl, { strict: false })
+    .addJson(require('./testing/types.json'))
+    .build();
+  expect(codec3.decode(buff).data.value).toBeInstanceOf(Buffer);
 });
 
-test('encoding/decoding (non-recursive)', () => {
-  const test = (message) => {
-    const buffer = codec.encode(message);
-
-    // Partially decode buffer.
-    const received = codec.decodeByType(buffer, 'testing.Message', { recursive: false });
-    expect(received.bucketId).toEqual('bucket-1');
-
-    received.payload.forEach(({ type_url: typeUrl, value }) => {
-      expect(typeUrl).not.toBeNull();
-      expect(value).not.toBeNull();
-    });
-
-    // Fully decode remaining.
-    codec.decodeObject(received, 'testing.Message');
-    expect(received).toEqual(message);
+test('ignore unknown props', () => {
+  const message = {
+    data: {
+      __type_url: 'testing.AnyNumber',
+      value: 1
+    },
+    unknownType: new Map()
   };
 
-  const filter = '$..payload';
-  messages.filter(message => JSONPath({ path: filter, json: message }).length).forEach((message) => {
-    test(message);
-  });
-});
-
-test('encoding/decoding (missing type)', () => {
-  const test = (message) => {
-    const buffer = codec.encode(message);
-
-    // Partially decode with missing type defs.
-    const { schema } = codec;
-    delete schema.nested.testing.nested.Data;
-    const partialCodec = new Codec(rootTypeUrl).addJson(schema).build();
-
-    const received = partialCodec.decodeByType(buffer, 'testing.Message', { recursive: true, strict: false });
-    expect(received).not.toEqual(message);
-
-    // Fully decode remaining.
-    codec.decodeObject(received, 'testing.Message');
-    expect(received).toEqual(message);
-  };
-
-  const filter = '$..*[?(@property === "__type_url" && @ === "testing.Data")]';
-  messages
-    .filter(message => JSONPath({ path: filter, json: message }).length)
-    .forEach((message) => {
-      test(message);
-    });
+  expect(codec.encode(message)).toBeInstanceOf(Buffer);
 });
