@@ -160,6 +160,10 @@ export class Codec {
       console.warn('Last JSON schema is not builded');
     }
 
+    if (value.__type_url) {
+      value = Object.assign({}, value, { __type_url: undefined });
+    }
+
     const type = this.getType(typeUrl);
     if (!type) {
       throw new Error(`Unknown type: ${typeUrl}`);

@@ -18,7 +18,7 @@ test('types', () => {
 
 test('encode/decode', () => {
   const message = {
-    id: 'id1',
+    bucketId: 'id1',
     data: {
       __type_url: 'testing.CustomType',
       value: 'value1',
