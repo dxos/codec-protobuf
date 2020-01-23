@@ -27,8 +27,12 @@ test('encode/decode', () => {
         data: {
           __type_url: 'testing.AnyNumber',
           value: 1
-        }
-      }
+        },
+        dataBytes: Buffer.from('value1'),
+        repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
+      },
+      dataBytes: Buffer.from('value1'),
+      repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
     },
     repeatedData: [{
       __type_url: 'testing.AnyNumber',
@@ -53,8 +57,12 @@ test('encode/decode', () => {
         data: {
           __type_url: 'testing.AnyNumber',
           value: 1
-        }
-      }
+        },
+        dataBytes: Buffer.from('value1'),
+        repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
+      },
+      dataBytes: Buffer.from('value1'),
+      repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
     },
     repeatedCustomType: [{
       value: 'value1',
@@ -67,7 +75,9 @@ test('encode/decode', () => {
       }
     }, {
       value: 'value2'
-    }]
+    }],
+    dataBytes: Buffer.from('value1'),
+    repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
   };
 
   const buff = codec.encode(message);
@@ -116,4 +126,15 @@ test('ignore unknown props', () => {
   };
 
   expect(codec.encode(message)).toBeInstanceOf(Buffer);
+});
+
+test('should throw an error if try to use Any type in a non Any type message', () => {
+  const message = {
+    customType: {
+      __type_url: 'testing.CustomType',
+      value: 'value1'
+    }
+  };
+
+  expect(() => codec.encode(message)).toThrow('Invalid __type_url');
 });

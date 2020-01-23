@@ -169,9 +169,13 @@ export class Codec {
       throw new Error(`Unknown type: ${typeUrl}`);
     }
 
-    const object = this._iterate(value, value => {
+    const object = this._iterate(type, value, null, (value, parentProp) => {
       if (!value.__type_url) {
         return;
+      }
+
+      if (type.fields[parentProp].type !== 'google.protobuf.Any') {
+        throw new Error(`Invalid __type_url for a non google.protobuf.Any: ${type.name}.${parentProp}`);
       }
 
       const { __type_url: typeUrl, ...formalValue } = value;
@@ -244,7 +248,7 @@ export class Codec {
       }
     }
 
-    const object = this._iterate(value, value => {
+    const object = this._iterate(type, value, null, value => {
       // Test if already decoded.
       if (value.__type_url) {
         return value;
@@ -274,7 +278,7 @@ export class Codec {
     return object;
   }
 
-  _iterate (value, callback) {
+  _iterate (type, value, parentProp, callback) {
     if (typeof value !== 'object') return value;
 
     let tmp;
@@ -282,14 +286,14 @@ export class Codec {
     const str = Object.prototype.toString.call(value);
 
     if (str === '[object Object]') {
-      const result = callback(value);
+      const result = callback(value, parentProp);
       if (result) {
         return result;
       }
 
       tmp = {};
       for (prop in value) {
-        tmp[prop] = this._iterate(value[prop], callback);
+        tmp[prop] = this._iterate(type, value[prop], prop, callback);
       }
       return tmp;
     }
@@ -297,7 +301,7 @@ export class Codec {
     if (str === '[object Array]') {
       prop = value.length;
       for (tmp = new Array(prop); prop--;) {
-        tmp[prop] = this._iterate(value[prop], callback);
+        tmp[prop] = this._iterate(type, value[prop], parentProp, callback);
       }
       return tmp;
     }

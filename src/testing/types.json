@@ -25,6 +25,15 @@
               "rule": "repeated",
               "type": "CustomType",
               "id": 5
+            },
+            "dataBytes": {
+              "type": "bytes",
+              "id": 6
+            },
+            "repeatedDataBytes": {
+              "rule": "repeated",
+              "type": "bytes",
+              "id": 7
             }
           }
         },
@@ -37,6 +46,15 @@
             "data": {
               "type": "google.protobuf.Any",
               "id": 2
+            },
+            "dataBytes": {
+              "type": "bytes",
+              "id": 3
+            },
+            "repeatedDataBytes": {
+              "rule": "repeated",
+              "type": "bytes",
+              "id": 4
             }
           }
         }
