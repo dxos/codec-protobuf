@@ -319,10 +319,8 @@ export class Codec {
       }
 
       case 'Array': {
-        let result;
-
-        let i = value.length;
-        for (result = new Array(i); i--;) {
+        const result = new Array(value.length);
+        for (let i = 0; i < value.length; i++) {
           result[i] = this._iterate(type, value[i], parentProp, callback);
         }
 
