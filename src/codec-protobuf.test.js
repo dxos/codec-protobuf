@@ -2,6 +2,8 @@
 // Copyright 2019 DxOS.
 //
 
+// TODO(burdon): Only ANY types should have __type_url
+
 import { Codec } from './codec-protobuf';
 
 const rootTypeUrl = 'testing.Container';

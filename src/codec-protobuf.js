@@ -62,10 +62,10 @@ export class Codec {
   _root = null;
 
   /**
-   * Defines if the Codec has the last JSON schema builded.
+   * Determines if the schema has been modified.
    * @type {boolean}
    */
-  _builded = false
+  _modified = true;
 
   /**
    * @param rootTypeUrl - Root type.
@@ -75,13 +75,17 @@ export class Codec {
    */
   constructor (rootTypeUrl, options = {}) {
     console.assert(rootTypeUrl);
-
     this._rootTypeUrl = rootTypeUrl;
-    this._options = { recursive: true, strict: true, ...options };
+
+    this._options = {
+      recursive: true,
+      strict: true,
+      ...options
+    };
   }
 
   /**
-   * Returns a copy of the last JSON schema builded.
+   * Returns a copy of the last JSON schema built.
    * @return {Object}
    */
   get schema () {
@@ -89,8 +93,8 @@ export class Codec {
       return {};
     }
 
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     return this._root.toJSON();
@@ -124,7 +128,7 @@ export class Codec {
   addJson (json) {
     console.assert(typeof json === 'object');
     this._json = merge(this._json, json);
-    this._builded = false;
+    this._modified = true;
     return this;
   }
 
@@ -134,7 +138,7 @@ export class Codec {
    */
   build () {
     this._root = Root.fromJSON(this._json);
-    this._builded = true;
+    this._modified = false;
     return this;
   }
 
@@ -156,11 +160,12 @@ export class Codec {
    * @return {Buffer}
    */
   encodeByType (value, typeUrl) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     if (value.__type_url) {
+      // TODO(burdon): Why set undefined?
       value = Object.assign({}, value, { __type_url: undefined });
     }
 
@@ -208,8 +213,8 @@ export class Codec {
    * @return {Object} JSON object.
    */
   decodeByType (buffer, typeUrl, options = { recursive: true, strict: true }) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     const type = this.getType(typeUrl);
@@ -235,8 +240,8 @@ export class Codec {
    * @param {Object} [options]
    */
   decodeObject (value, typeUrl, options = { recursive: true, strict: true }) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     const type = this.getType(typeUrl);
@@ -248,7 +253,7 @@ export class Codec {
       }
     }
 
-    const object = this._iterate(type, value, null, value => {
+    return this._iterate(type, value, null, value => {
       // Test if already decoded.
       if (value.__type_url) {
         return value;
@@ -274,38 +279,58 @@ export class Codec {
         __type_url: typeUrl
       });
     });
-
-    return object;
   }
 
+  /**
+   * TODO(burdon): Document.
+   * @callback IteratorCallback
+   * @param {*} value
+   * @param {string} parentProp
+   */
+
+  /**
+   * Recursively traverses object.
+   * @param {Type} type
+   * @param {*} value
+   * @param {string} parentProp
+   * @param {IteratorCallback} callback
+   * @return {Object}
+   * @private
+   */
   _iterate (type, value, parentProp, callback) {
-    if (typeof value !== 'object') return value;
+    // Detect scalars.
+    if (typeof value !== 'object') {
+      return value;
+    }
 
-    let tmp;
-    let prop;
-    const str = Object.prototype.toString.call(value);
+    switch (value.constructor.name) {
+      case 'Object': {
+        let result = callback(value, parentProp);
+        if (result) {
+          return result;
+        }
 
-    if (str === '[object Object]') {
-      const result = callback(value, parentProp);
-      if (result) {
+        result = {};
+        Object.keys(value).forEach(prop => {
+          result[prop] = this._iterate(type, value[prop], prop, callback);
+        });
+
         return result;
       }
 
-      tmp = {};
-      for (prop in value) {
-        tmp[prop] = this._iterate(type, value[prop], prop, callback);
-      }
-      return tmp;
-    }
+      case 'Array': {
+        let result;
 
-    if (str === '[object Array]') {
-      prop = value.length;
-      for (tmp = new Array(prop); prop--;) {
-        tmp[prop] = this._iterate(type, value[prop], parentProp, callback);
-      }
-      return tmp;
-    }
+        let i = value.length;
+        for (result = new Array(i); i--;) {
+          result[i] = this._iterate(type, value[i], parentProp, callback);
+        }
 
-    return value;
+        return result;
+      }
+
+      default:
+        return value;
+    }
   }
 }
