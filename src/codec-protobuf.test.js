@@ -2,6 +2,7 @@
 // Copyright 2019 DxOS.
 //
 
+// TODO(burdon): Test arrays.
 // TODO(burdon): Only ANY types should have __type_url
 
 import { Codec } from './codec-protobuf';
@@ -82,8 +83,8 @@ test('encode/decode', () => {
     repeatedDataBytes: [Buffer.from('value1'), Buffer.from('value2')]
   };
 
-  const buff = codec.encode(message);
-  expect(codec.decode(buff)).toEqual(message);
+  const buffer = codec.encode(message);
+  expect(codec.decode(buffer)).toEqual(message);
 });
 
 test('encode error if type not found', () => {
@@ -105,17 +106,16 @@ test('decode using strict = true|false', () => {
     }
   };
 
-  const buff = codec.encode(message);
-
+  const buffer = codec.encode(message);
   const codec2 = new Codec(rootTypeUrl)
     .addJson(require('./testing/types.json'))
     .build();
-  expect(() => codec2.decode(buff)).toThrow(/Unknown type/);
+  expect(() => codec2.decode(buffer)).toThrow(/Unknown type/);
 
   const codec3 = new Codec(rootTypeUrl, { strict: false })
     .addJson(require('./testing/types.json'))
     .build();
-  expect(codec3.decode(buff).data.value).toBeInstanceOf(Buffer);
+  expect(codec3.decode(buffer).data.value).toBeInstanceOf(Buffer);
 });
 
 test('ignore unknown props', () => {

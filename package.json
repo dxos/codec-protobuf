@@ -33,6 +33,7 @@
     "> 5%"
   ],
   "dependencies": {
+    "assert": "^2.0.0",
     "buffer": "^5.4.3",
     "lodash.merge": "^4.6.2",
     "protobufjs": "https://github.com/protobufjs/protobuf.js",

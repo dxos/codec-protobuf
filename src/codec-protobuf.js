@@ -2,8 +2,9 @@
 // Copyright 2019 DxOS.
 //
 
-import protobuf from 'protobufjs/light';
+import assert from 'assert';
 import merge from 'lodash.merge';
+import protobuf from 'protobufjs/light';
 
 protobuf.util.Buffer = Buffer || require('buffer');
 protobuf.configure();
@@ -74,7 +75,7 @@ export class Codec {
    * @param options.strict - Throw an exception if the type is not found.
    */
   constructor (rootTypeUrl, options = {}) {
-    console.assert(rootTypeUrl);
+    assert(rootTypeUrl);
     this._rootTypeUrl = rootTypeUrl;
 
     this._options = {
@@ -107,7 +108,7 @@ export class Codec {
    * @return {Type} The type object or null if not found.
    */
   getType (type) {
-    console.assert(type, 'Missing type');
+    assert(type, 'Missing type');
     if (!this._root) {
       return null;
     }
@@ -126,7 +127,7 @@ export class Codec {
    * @return {Codec}
    */
   addJson (json) {
-    console.assert(typeof json === 'object');
+    assert(typeof json === 'object', 'Expected JSON schema object.');
     this._json = merge(this._json, json);
     this._modified = true;
     return this;
@@ -179,6 +180,10 @@ export class Codec {
         return;
       }
 
+      if (!type.fields[parentProp]) {
+        throw new Error(`Invalid field: ${parentProp}`);
+      }
+
       if (type.fields[parentProp].type !== 'google.protobuf.Any') {
         throw new Error(`Invalid __type_url for a non google.protobuf.Any: ${type.name}.${parentProp}`);
       }
@@ -198,10 +203,11 @@ export class Codec {
    * Decode the buffer.
    *
    * @param {Buffer} buffer
+   * @param {string} [typeUrl]
    * @return {Object}
    */
-  decode (buffer) {
-    return this.decodeByType(buffer, this._rootTypeUrl, this._options);
+  decode (buffer, typeUrl) {
+    return this.decodeByType(buffer, typeUrl || this._rootTypeUrl, this._options);
   }
 
   /**
@@ -282,13 +288,6 @@ export class Codec {
   }
 
   /**
-   * TODO(burdon): Document.
-   * @callback IteratorCallback
-   * @param {*} value
-   * @param {string} parentProp
-   */
-
-  /**
    * Recursively traverses object.
    * @param {Type} type
    * @param {*} value
@@ -296,29 +295,33 @@ export class Codec {
    * @param {IteratorCallback} callback
    * @return {Object}
    * @private
+   *
+   * Callback invoked via the visitor pattern `_iterate` which does custom encoding/decoding.
+   * @callback IteratorCallback
+   * @param {*} value
+   * @param {string} parentProp
+   * @returns {Object|null}
    */
   _iterate (type, value, parentProp, callback) {
-    // Detect scalars.
-    if (typeof value !== 'object') {
-      return value;
-    }
+    assert(type, `Null type for ${parentProp}`);
 
-    switch (value.constructor.name) {
-      case 'Object': {
+    switch (Object.prototype.toString.call(value)) {
+
+      // Object
+      case '[object Object]': {
         let result = callback(value, parentProp);
-        if (result) {
-          return result;
+        if (!result) {
+          result = {};
+          Object.keys(value).forEach(prop => {
+            result[prop] = this._iterate(type, value[prop], prop, callback);
+          });
         }
-
-        result = {};
-        Object.keys(value).forEach(prop => {
-          result[prop] = this._iterate(type, value[prop], prop, callback);
-        });
 
         return result;
       }
 
-      case 'Array': {
+      // Array
+      case '[object Array]': {
         const result = new Array(value.length);
         for (let i = 0; i < value.length; i++) {
           result[i] = this._iterate(type, value[i], parentProp, callback);
@@ -327,6 +330,7 @@ export class Codec {
         return result;
       }
 
+      // Scalar
       default:
         return value;
     }
