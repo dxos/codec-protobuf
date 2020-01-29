@@ -306,7 +306,6 @@ export class Codec {
     assert(type, `Null type for ${parentProp}`);
 
     switch (Object.prototype.toString.call(value)) {
-
       // Object
       case '[object Object]': {
         let result = callback(value, parentProp);
