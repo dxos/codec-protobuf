@@ -2,8 +2,9 @@
 // Copyright 2019 DxOS.
 //
 
-import protobuf from 'protobufjs/light';
+import assert from 'assert';
 import merge from 'lodash.merge';
+import protobuf from 'protobufjs/light';
 
 protobuf.util.Buffer = Buffer || require('buffer');
 protobuf.configure();
@@ -62,10 +63,10 @@ export class Codec {
   _root = null;
 
   /**
-   * Defines if the Codec has the last JSON schema builded.
+   * Determines if the schema has been modified.
    * @type {boolean}
    */
-  _builded = false
+  _modified = true;
 
   /**
    * @param rootTypeUrl - Root type.
@@ -74,14 +75,18 @@ export class Codec {
    * @param options.strict - Throw an exception if the type is not found.
    */
   constructor (rootTypeUrl, options = {}) {
-    console.assert(rootTypeUrl);
-
+    assert(rootTypeUrl);
     this._rootTypeUrl = rootTypeUrl;
-    this._options = { recursive: true, strict: true, ...options };
+
+    this._options = {
+      recursive: true,
+      strict: true,
+      ...options
+    };
   }
 
   /**
-   * Returns a copy of the last JSON schema builded.
+   * Returns a copy of the last JSON schema built.
    * @return {Object}
    */
   get schema () {
@@ -89,8 +94,8 @@ export class Codec {
       return {};
     }
 
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     return this._root.toJSON();
@@ -103,7 +108,7 @@ export class Codec {
    * @return {Type} The type object or null if not found.
    */
   getType (type) {
-    console.assert(type, 'Missing type');
+    assert(type, 'Missing type');
     if (!this._root) {
       return null;
     }
@@ -122,9 +127,9 @@ export class Codec {
    * @return {Codec}
    */
   addJson (json) {
-    console.assert(typeof json === 'object');
+    assert(typeof json === 'object', 'Expected JSON schema object.');
     this._json = merge(this._json, json);
-    this._builded = false;
+    this._modified = true;
     return this;
   }
 
@@ -134,7 +139,7 @@ export class Codec {
    */
   build () {
     this._root = Root.fromJSON(this._json);
-    this._builded = true;
+    this._modified = false;
     return this;
   }
 
@@ -156,11 +161,12 @@ export class Codec {
    * @return {Buffer}
    */
   encodeByType (value, typeUrl) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     if (value.__type_url) {
+      // TODO(burdon): Why set undefined?
       value = Object.assign({}, value, { __type_url: undefined });
     }
 
@@ -172,6 +178,10 @@ export class Codec {
     const object = this._iterate(type, value, null, (value, parentProp) => {
       if (!value.__type_url) {
         return;
+      }
+
+      if (!type.fields[parentProp]) {
+        throw new Error(`Invalid field: ${parentProp}`);
       }
 
       if (type.fields[parentProp].type !== 'google.protobuf.Any') {
@@ -193,10 +203,11 @@ export class Codec {
    * Decode the buffer.
    *
    * @param {Buffer} buffer
+   * @param {string} [typeUrl]
    * @return {Object}
    */
-  decode (buffer) {
-    return this.decodeByType(buffer, this._rootTypeUrl, this._options);
+  decode (buffer, typeUrl) {
+    return this.decodeByType(buffer, typeUrl || this._rootTypeUrl, this._options);
   }
 
   /**
@@ -208,8 +219,8 @@ export class Codec {
    * @return {Object} JSON object.
    */
   decodeByType (buffer, typeUrl, options = { recursive: true, strict: true }) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     const type = this.getType(typeUrl);
@@ -235,8 +246,8 @@ export class Codec {
    * @param {Object} [options]
    */
   decodeObject (value, typeUrl, options = { recursive: true, strict: true }) {
-    if (!this._builded) {
-      console.warn('Last JSON schema is not builded');
+    if (this._modified) {
+      this.build();
     }
 
     const type = this.getType(typeUrl);
@@ -248,7 +259,7 @@ export class Codec {
       }
     }
 
-    const object = this._iterate(type, value, null, value => {
+    return this._iterate(type, value, null, value => {
       // Test if already decoded.
       if (value.__type_url) {
         return value;
@@ -274,38 +285,53 @@ export class Codec {
         __type_url: typeUrl
       });
     });
-
-    return object;
   }
 
+  /**
+   * Recursively traverses object.
+   * @param {Type} type
+   * @param {*} value
+   * @param {string} parentProp
+   * @param {IteratorCallback} callback
+   * @return {Object}
+   * @private
+   *
+   * Callback invoked via the visitor pattern `_iterate` which does custom encoding/decoding.
+   * @callback IteratorCallback
+   * @param {*} value
+   * @param {string} parentProp
+   * @returns {Object|null}
+   */
   _iterate (type, value, parentProp, callback) {
-    if (typeof value !== 'object') return value;
+    assert(type, `Null type for ${parentProp}`);
 
-    let tmp;
-    let prop;
-    const str = Object.prototype.toString.call(value);
+    switch (Object.prototype.toString.call(value)) {
+      // Object
+      case '[object Object]': {
+        let result = callback(value, parentProp);
+        if (!result) {
+          result = {};
+          Object.keys(value).forEach(prop => {
+            result[prop] = this._iterate(type, value[prop], prop, callback);
+          });
+        }
 
-    if (str === '[object Object]') {
-      const result = callback(value, parentProp);
-      if (result) {
         return result;
       }
 
-      tmp = {};
-      for (prop in value) {
-        tmp[prop] = this._iterate(type, value[prop], prop, callback);
-      }
-      return tmp;
-    }
+      // Array
+      case '[object Array]': {
+        const result = new Array(value.length);
+        for (let i = 0; i < value.length; i++) {
+          result[i] = this._iterate(type, value[i], parentProp, callback);
+        }
 
-    if (str === '[object Array]') {
-      prop = value.length;
-      for (tmp = new Array(prop); prop--;) {
-        tmp[prop] = this._iterate(type, value[prop], parentProp, callback);
+        return result;
       }
-      return tmp;
-    }
 
-    return value;
+      // Scalar
+      default:
+        return value;
+    }
   }
 }

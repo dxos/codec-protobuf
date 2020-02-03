@@ -1,6 +1,6 @@
 {
   "name": "@dxos/codec-protobuf",
-  "version": "1.1.0-beta.6",
+  "version": "1.1.0-beta.7",
   "description": "Value encoding for protobuf.",
   "homepage": "https://github.com/dxos/codec-protobuf#readme",
   "bugs": {
@@ -33,6 +33,7 @@
     "> 5%"
   ],
   "dependencies": {
+    "assert": "^2.0.0",
     "buffer": "^5.4.3",
     "lodash.merge": "^4.6.2",
     "protobufjs": "https://github.com/protobufjs/protobuf.js",
