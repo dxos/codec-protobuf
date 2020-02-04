@@ -124,10 +124,26 @@ test('ignore unknown props', () => {
       __type_url: 'testing.AnyNumber',
       value: 1
     },
+    customType: {
+      value: 'value1',
+      unknownType: {
+        unknownType: new Map()
+      }
+    },
     unknownType: new Map()
   };
 
-  expect(codec.encode(message)).toBeInstanceOf(Buffer);
+  const buffer = codec.encode(message);
+  expect(buffer).toBeInstanceOf(Buffer);
+  expect(codec.decode(buffer)).toEqual({
+    data: {
+      __type_url: 'testing.AnyNumber',
+      value: 1
+    },
+    customType: {
+      value: 'value1'
+    }
+  });
 });
 
 test('should throw an error if try to use Any type in a non Any type message', () => {
@@ -139,4 +155,24 @@ test('should throw an error if try to use Any type in a non Any type message', (
   };
 
   expect(() => codec.encode(message)).toThrow('Invalid __type_url');
+});
+
+test('should ignore the __type_url prop in the root object', () => {
+  const message = {
+    bucketId: 'id1',
+    customType: {
+      value: 'value1'
+    }
+  };
+
+  message.__type_url = 'wrong';
+
+  const buffer = codec.encode(message);
+  expect(buffer).toBeInstanceOf(Buffer);
+  expect(codec.decode(buffer)).toEqual({
+    bucketId: 'id1',
+    customType: {
+      value: 'value1'
+    }
+  });
 });

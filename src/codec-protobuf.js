@@ -165,23 +165,24 @@ export class Codec {
       this.build();
     }
 
-    if (value.__type_url) {
-      // TODO(burdon): Why set undefined?
-      value = Object.assign({}, value, { __type_url: undefined });
-    }
-
     const type = this.getType(typeUrl);
     if (!type) {
       throw new Error(`Unknown type: ${typeUrl}`);
     }
 
     const object = this._iterate(type, value, null, (value, parentProp) => {
-      if (!value.__type_url) {
-        return;
+      // If the prop doesn't exist in the schema, we must ignore it.
+      if (parentProp && !type.fields[parentProp]) {
+        return value;
       }
 
-      if (!type.fields[parentProp]) {
-        throw new Error(`Invalid field: ${parentProp}`);
+      // If is the root object, we cannot use __type_url.
+      if (!parentProp && value.__type_url) {
+        return value;
+      }
+
+      if (!value.__type_url) {
+        return;
       }
 
       if (type.fields[parentProp].type !== 'google.protobuf.Any') {
@@ -189,7 +190,6 @@ export class Codec {
       }
 
       const { __type_url: typeUrl, ...formalValue } = value;
-
       return {
         type_url: typeUrl,
         value: this.encodeByType(formalValue, typeUrl)
@@ -303,8 +303,6 @@ export class Codec {
    * @returns {Object|null}
    */
   _iterate (type, value, parentProp, callback) {
-    assert(type, `Null type for ${parentProp}`);
-
     switch (Object.prototype.toString.call(value)) {
       // Object
       case '[object Object]': {
