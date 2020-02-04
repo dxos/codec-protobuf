@@ -178,9 +178,10 @@ export class Codec {
 
       // If is the root object, we cannot use __type_url.
       if (!parentProp && value.__type_url) {
-        return value;
+        return;
       }
 
+      // Encoding an any type object
       if (!value.__type_url) {
         return;
       }
