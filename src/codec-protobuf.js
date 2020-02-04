@@ -176,18 +176,13 @@ export class Codec {
         return value;
       }
 
-      // If is the root object, we cannot use __type_url.
-      if (!parentProp && value.__type_url) {
-        return;
-      }
-
       // Encoding an any type object
       if (!value.__type_url) {
         return;
       }
 
-      if (type.fields[parentProp].type !== 'google.protobuf.Any') {
-        throw new Error(`Invalid __type_url for a non google.protobuf.Any: ${type.name}.${parentProp}`);
+      if (!parentProp || type.fields[parentProp].type !== 'google.protobuf.Any') {
+        throw new Error(`Invalid __type_url for a non google.protobuf.Any: ${type.name}${parentProp ? '.' + parentProp : ''}`);
       }
 
       const { __type_url: typeUrl, ...formalValue } = value;

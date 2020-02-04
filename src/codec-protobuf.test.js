@@ -157,19 +157,11 @@ test('should throw an error if try to use Any type in a non Any type message', (
   expect(() => codec.encode(message)).toThrow('Invalid __type_url');
 });
 
-test('should ignore the __type_url prop in the root object', () => {
+test('should throw an error if the __type_url prop in the root object', () => {
   const message = {
     bucketId: 'id1',
-    data: {
-      __type_url: 'testing.AnyNumber',
-      value: 1
-    },
-    customType: {
-      value: 'value1'
-    }
+    __type_url: 'wrong'
   };
 
-  const buffer = codec.encode({ ...message, __type_url: 'wrong' });
-  expect(buffer).toBeInstanceOf(Buffer);
-  expect(codec.decode(buffer)).toEqual(message);
+  expect(() => codec.encode(message)).toThrow('Invalid __type_url');
 });
