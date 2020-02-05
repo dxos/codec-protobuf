@@ -34,6 +34,10 @@
               "rule": "repeated",
               "type": "bytes",
               "id": 7
+            },
+            "oneofmessage": {
+              "type": "OneofMessage",
+              "id": 8
             }
           }
         },
@@ -55,6 +59,42 @@
               "rule": "repeated",
               "type": "bytes",
               "id": 4
+            }
+          }
+        },
+        "OneofMessage": {
+          "oneofs": {
+            "oneofvalue": {
+              "oneof": [
+                "one",
+                "two"
+              ]
+            }
+          },
+          "fields": {
+            "one": {
+              "type": "MessageOne",
+              "id": 1
+            },
+            "two": {
+              "type": "MessageTwo",
+              "id": 2
+            }
+          }
+        },
+        "MessageOne": {
+          "fields": {
+            "value": {
+              "type": "string",
+              "id": 1
+            }
+          }
+        },
+        "MessageTwo": {
+          "fields": {
+            "value": {
+              "type": "google.protobuf.Any",
+              "id": 1
             }
           }
         }

@@ -16,6 +16,7 @@ message Container {
   repeated CustomType repeatedCustomType = 5;
   bytes dataBytes = 6;
   repeated bytes repeatedDataBytes = 7;
+  OneofMessage oneofmessage = 8;
 }
 
 message CustomType {
@@ -23,4 +24,19 @@ message CustomType {
   google.protobuf.Any data = 2;
   bytes dataBytes = 3;
   repeated bytes repeatedDataBytes = 4;
+}
+
+message OneofMessage {
+  oneof oneofvalue {
+    MessageOne one = 1;
+    MessageTwo two = 2;
+  }
+}
+
+message MessageOne {
+  string value = 1;
+}
+
+message MessageTwo {
+  google.protobuf.Any value = 1;
 }

@@ -81,6 +81,7 @@ export class Codec {
     this._options = {
       recursive: true,
       strict: true,
+      verify: true,
       ...options
     };
   }
@@ -150,7 +151,7 @@ export class Codec {
    * @return {Buffer}
    */
   encode (value) {
-    return this.encodeByType(value, this._rootTypeUrl);
+    return this.encodeByType(value, this._rootTypeUrl, this._options);
   }
 
   /**
@@ -160,14 +161,13 @@ export class Codec {
    * @param {string} [typeUrl]
    * @return {Buffer}
    */
-  encodeByType (value, typeUrl) {
+  encodeByType (value, typeUrl, options = { verify: true }) {
     if (this._modified) {
       this.build();
     }
 
-    if (value.__type_url) {
-      // TODO(burdon): Why set undefined?
-      value = Object.assign({}, value, { __type_url: undefined });
+    if (value.__type_url && typeUrl) {
+      throw new Error('Invalid __type_url in root message');
     }
 
     const type = this.getType(typeUrl);
@@ -175,26 +175,25 @@ export class Codec {
       throw new Error(`Unknown type: ${typeUrl}`);
     }
 
-    const object = this._iterate(type, value, null, (value, parentProp) => {
+    const object = this._iterate(value, value => {
+      // Encoding an any type object
       if (!value.__type_url) {
         return;
       }
 
-      if (!type.fields[parentProp]) {
-        throw new Error(`Invalid field: ${parentProp}`);
-      }
-
-      if (type.fields[parentProp].type !== 'google.protobuf.Any') {
-        throw new Error(`Invalid __type_url for a non google.protobuf.Any: ${type.name}.${parentProp}`);
-      }
-
       const { __type_url: typeUrl, ...formalValue } = value;
-
       return {
         type_url: typeUrl,
-        value: this.encodeByType(formalValue, typeUrl)
+        value: this.encodeByType(formalValue, typeUrl, options)
       };
     });
+
+    if (options.verify) {
+      const err = type.verify(object);
+      if (err) {
+        throw Error(err);
+      }
+    }
 
     return type.encode(object).finish();
   }
@@ -259,7 +258,7 @@ export class Codec {
       }
     }
 
-    return this._iterate(type, value, null, value => {
+    return this._iterate(value, value => {
       // Test if already decoded.
       if (value.__type_url) {
         return value;
@@ -289,9 +288,7 @@ export class Codec {
 
   /**
    * Recursively traverses object.
-   * @param {Type} type
    * @param {*} value
-   * @param {string} parentProp
    * @param {IteratorCallback} callback
    * @return {Object}
    * @private
@@ -299,20 +296,17 @@ export class Codec {
    * Callback invoked via the visitor pattern `_iterate` which does custom encoding/decoding.
    * @callback IteratorCallback
    * @param {*} value
-   * @param {string} parentProp
    * @returns {Object|null}
    */
-  _iterate (type, value, parentProp, callback) {
-    assert(type, `Null type for ${parentProp}`);
-
+  _iterate (value, callback) {
     switch (Object.prototype.toString.call(value)) {
       // Object
       case '[object Object]': {
-        let result = callback(value, parentProp);
+        let result = callback(value);
         if (!result) {
           result = {};
           Object.keys(value).forEach(prop => {
-            result[prop] = this._iterate(type, value[prop], prop, callback);
+            result[prop] = this._iterate(value[prop], callback);
           });
         }
 
@@ -323,7 +317,7 @@ export class Codec {
       case '[object Array]': {
         const result = new Array(value.length);
         for (let i = 0; i < value.length; i++) {
-          result[i] = this._iterate(type, value[i], parentProp, callback);
+          result[i] = this._iterate(value[i], callback);
         }
 
         return result;
