@@ -154,7 +154,7 @@ test('should throw an error if try to use Any type in a non Any type message', (
     }
   };
 
-  expect(() => codec.encode(message)).toThrow('Invalid __type_url');
+  expect(() => codec.encode(message)).toThrow('customType.value: string expected');
 });
 
 test('should throw an error if the __type_url prop in the root object', () => {
@@ -164,4 +164,23 @@ test('should throw an error if the __type_url prop in the root object', () => {
   };
 
   expect(() => codec.encode(message)).toThrow('Invalid __type_url');
+});
+
+test('oneof', () => {
+  const message = {
+    oneofmessage: {
+      two: {
+        value: {
+          __type_url: 'testing.AnyNumber',
+          value: 1
+        }
+      }
+    }
+  };
+  expect(codec.decode(codec.encode(message))).toEqual(message);
+
+  delete message.oneofmessage.two;
+  message.oneofmessage.one = { value: 'test' };
+
+  expect(codec.decode(codec.encode(message))).toEqual(message);
 });
