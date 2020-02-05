@@ -146,7 +146,7 @@ test('ignore unknown props', () => {
   });
 });
 
-test('should throw an error if try to use Any type in a non Any type message', () => {
+test('should ignore the type_url in a non Any type message', () => {
   const message = {
     customType: {
       __type_url: 'testing.CustomType',
@@ -154,16 +154,20 @@ test('should throw an error if try to use Any type in a non Any type message', (
     }
   };
 
-  expect(() => codec.encode(message)).toThrow('customType.value: string expected');
+  expect(codec.decode(codec.encode(message))).toEqual({
+    customType: {
+      value: 'value1'
+    }
+  });
 });
 
-test('should throw an error if the __type_url prop in the root object', () => {
+test('should ignore the __type_url prop in the root object', () => {
   const message = {
     bucketId: 'id1',
     __type_url: 'wrong'
   };
 
-  expect(() => codec.encode(message)).toThrow('Invalid __type_url');
+  expect(codec.decode(codec.encode(message))).toEqual({ bucketId: 'id1' });
 });
 
 test('oneof', () => {

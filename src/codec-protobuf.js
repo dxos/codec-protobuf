@@ -166,21 +166,22 @@ export class Codec {
       this.build();
     }
 
-    if (value.__type_url && typeUrl) {
-      throw new Error('Invalid __type_url in root message');
-    }
-
     const type = this.getType(typeUrl);
     if (!type) {
       throw new Error(`Unknown type: ${typeUrl}`);
     }
 
-    const object = this._iterate(value, value => {
-      // Encoding an any type object
-      if (!value.__type_url) {
+    const object = this._iterate(type, value, (type, value) => {
+      // If we don't know the type we ignore the encode for the value.
+      if (!type) {
+        return value;
+      }
+
+      if (!value.__type_url || type.fullName !== '.google.protobuf.Any') {
         return;
       }
 
+      // Encoding an any type object
       const { __type_url: typeUrl, ...formalValue } = value;
       return {
         type_url: typeUrl,
@@ -258,7 +259,7 @@ export class Codec {
       }
     }
 
-    return this._iterate(value, value => {
+    return this._iterate(null, value, (_, value) => {
       // Test if already decoded.
       if (value.__type_url) {
         return value;
@@ -288,6 +289,7 @@ export class Codec {
 
   /**
    * Recursively traverses object.
+   * @param {protobufjs.Type} type
    * @param {*} value
    * @param {IteratorCallback} callback
    * @return {Object}
@@ -295,18 +297,23 @@ export class Codec {
    *
    * Callback invoked via the visitor pattern `_iterate` which does custom encoding/decoding.
    * @callback IteratorCallback
+   * @param {protobufjs.Type} type
    * @param {*} value
    * @returns {Object|null}
    */
-  _iterate (value, callback) {
+  _iterate (type, value, callback) {
     switch (Object.prototype.toString.call(value)) {
       // Object
       case '[object Object]': {
-        let result = callback(value);
+        let result = callback(type, value);
         if (!result) {
           result = {};
           Object.keys(value).forEach(prop => {
-            result[prop] = this._iterate(value[prop], callback);
+            const field = type && type.fields[prop];
+            if (field) {
+              field.resolve();
+            }
+            result[prop] = this._iterate(field ? field.resolvedType : null, value[prop], callback);
           });
         }
 
@@ -317,7 +324,7 @@ export class Codec {
       case '[object Array]': {
         const result = new Array(value.length);
         for (let i = 0; i < value.length; i++) {
-          result[i] = this._iterate(value[i], callback);
+          result[i] = this._iterate(type, value[i], callback);
         }
 
         return result;
