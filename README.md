@@ -75,6 +75,7 @@ The options are:
 
 - `rootTypeUrl: string`: Defines the root type message to encode/decode messages. Required.
 - `options: Object`
+  - `verify: boolean`: Verify the objects before to encode. Default: `true`.
   - `recursive: boolean`: Recursively decode the buffer. Default: `true`.
   - `strict: boolean`: Throw an exception if the type is not found. Default: `true`.
 
