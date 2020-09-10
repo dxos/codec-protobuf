@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+message Key {
+  required string data = 1;
+}
+
+message Task {
+  string id = 1;
+  string title = 2;
+  required Key key = 3;
+}
+
+
+message TaskList {
+  repeated Task tasks = 1;
+}
