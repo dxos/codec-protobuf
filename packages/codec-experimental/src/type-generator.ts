@@ -75,7 +75,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
         obj.fieldsArray.map(field => ts.createPropertySignature(
           undefined,
           field.name,
-          undefined,
+          field.required ? undefined : ts.factory.createToken(ts.SyntaxKind.QuestionToken),
           getFieldType(field, subs),
           undefined
         )),
