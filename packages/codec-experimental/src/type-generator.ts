@@ -1,13 +1,19 @@
 import protobufjs from 'protobufjs';
 import * as ts from 'typescript'
 import { writeFileSync } from 'fs'
+import { ModuleSpecifier } from './module-specifier';
+
+interface ImportDescriptor {
+  clause: ts.ImportClause,
+  module: ModuleSpecifier,
+}
  
 function parseSubsFile(fileName: string) {
   const program = ts.createProgram([fileName], {})
   const sourceFile = program.getSourceFile(fileName)!;
   const typeChecker = program.getTypeChecker();
 
-  const imports: ts.ImportDeclaration[] = []
+  const imports: ImportDescriptor[] = []
   const subs: Record<string, string> = {}
   ts.forEachChild(sourceFile, node => {
     if(ts.isExportAssignment(node)) {
@@ -25,7 +31,12 @@ function parseSubsFile(fileName: string) {
         subs[key] = returnTypeName!
       }
     } else if(ts.isImportDeclaration(node)) {
-      imports.push(node)
+      if(ts.isStringLiteral(node.moduleSpecifier) && node.importClause) {
+        imports.push({
+          clause: node.importClause,
+          module: new ModuleSpecifier(node.moduleSpecifier.text, sourceFile.fileName)
+        })
+      }
     }
   })
 
@@ -83,13 +94,23 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     }
   }
 
-  const printer = ts.createPrinter()
-  const sources = [] 
-  for(const importNode of [...imports, ...declarations]) {
-    sources.push(printer.printNode(ts.EmitHint.Unspecified, importNode, sourceFile))
-  }
 
-  writeFileSync('./src/types.ts', sources.join('\n'));
+  const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
+    [],
+    [],
+    decriptor.clause,
+    ts.factory.createStringLiteral(decriptor.module.name),
+  )) 
+  const generatedSourceFile = ts.factory.createSourceFile(
+    [...importDeclarations, ...declarations],
+    ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+    ts.NodeFlags.None
+  )
+
+  const printer = ts.createPrinter()
+  const source = printer.printFile(generatedSourceFile);
+
+  writeFileSync('./src/types.ts', source);
 })();
 
 function getFlags(enumType: any, flags: any) {
