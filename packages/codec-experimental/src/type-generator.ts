@@ -2,6 +2,7 @@ import protobufjs from 'protobufjs';
 import * as ts from 'typescript'
 import { writeFileSync } from 'fs'
 import { ModuleSpecifier } from './module-specifier';
+import { join, dirname } from 'path'
 
 interface ImportDescriptor {
   clause: ts.ImportClause,
@@ -34,7 +35,7 @@ function parseSubsFile(fileName: string) {
       if(ts.isStringLiteral(node.moduleSpecifier) && node.importClause) {
         imports.push({
           clause: node.importClause,
-          module: new ModuleSpecifier(node.moduleSpecifier.text, sourceFile.fileName)
+          module: new ModuleSpecifier(node.moduleSpecifier.text, dirname(sourceFile.fileName))
         })
       }
     }
@@ -94,12 +95,13 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     }
   }
 
+  const outFilePath = join(__dirname, './gen/types.ts')
 
   const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
     [],
     [],
     decriptor.clause,
-    ts.factory.createStringLiteral(decriptor.module.name),
+    ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
   )) 
   const generatedSourceFile = ts.factory.createSourceFile(
     [...importDeclarations, ...declarations],
@@ -110,7 +112,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
   const printer = ts.createPrinter()
   const source = printer.printFile(generatedSourceFile);
 
-  writeFileSync('./src/types.ts', source);
+  writeFileSync(outFilePath, source);
 })();
 
 function getFlags(enumType: any, flags: any) {

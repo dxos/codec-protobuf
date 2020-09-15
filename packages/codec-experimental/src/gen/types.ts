@@ -1,4 +1,4 @@
-import { MyKey } from "./my-key";
+import { MyKey } from "../my-key";
 export interface Key {
     data: string;
 }
