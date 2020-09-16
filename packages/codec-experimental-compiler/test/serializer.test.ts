@@ -1,21 +1,23 @@
-import { serializer } from './gen/serializer';
+import { serializer, TaskList, TaskType } from './gen/serializer';
 import { MyKey } from './my-key';
 import { readFileSync } from 'fs'
 
 test('encode and decode', async () => {
   const codec = serializer.getCodecForType('TaskList')
 
-  const initial = {
+  const initial: TaskList = {
     tasks: [
       {
         id: 'foo',
         title: 'Bar',
         key: new MyKey(Buffer.from('foo')),
+        type: TaskType.COMPLETED,
       },
       {
         id: 'baz',
         title: 'Baz',
         key: new MyKey(Buffer.from('foo')),
+        type: TaskType.IN_PROGRESS,
       }
     ],
   }

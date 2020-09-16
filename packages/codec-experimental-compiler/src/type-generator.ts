@@ -7,12 +7,12 @@ import { parseSubstitutionsFile } from './substitutions-parser';
 import { createDeclarationForType } from './declaration-generator';
 import { createSerializerDefinition } from './serializer-definition-generator';
 
-function* enumerateNestedTypes(root: protobufjs.NamespaceBase): Generator<protobufjs.Type> {
+function* enumerateNestedTypes(root: protobufjs.NamespaceBase): Generator<protobufjs.ReflectionObject> {
   for (const obj of root.nestedArray) {
-    if(obj instanceof protobufjs.Type) {
+    if(obj instanceof protobufjs.ReflectionObject) {
       yield obj;
-      yield* enumerateNestedTypes(obj)
-    } else if(obj instanceof protobufjs.Namespace) {
+    } 
+    if(obj instanceof protobufjs.Namespace) {
       yield* enumerateNestedTypes(obj)
     }
   }
@@ -24,7 +24,8 @@ export async function compileSchema(substitutionsModule: ModuleSpecifier, protoF
 
   const declarations: ts.Statement[] = []
   for (const obj of enumerateNestedTypes(root)) {
-    declarations.push(createDeclarationForType(obj, substitutions))
+    const declaration = createDeclarationForType(obj, substitutions);
+    declaration && declarations.push(declaration)
   }
 
   const { imports: schemaImports, exports: schemaExports } = createSerializerDefinition(substitutionsModule, root, dirname(outFilePath));

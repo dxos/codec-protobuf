@@ -49,7 +49,7 @@ function getScalarType(field: protobufjs.Field, subs: SubstitutionsMap): ts.Type
   }
 }
 
-export function createDeclarationForType(type: protobufjs.Type, substitutions: SubstitutionsMap) {
+function createMessageDeclaration(type: protobufjs.Type, subs: SubstitutionsMap) {
   return f.createInterfaceDeclaration(
     undefined,
     [f.createToken(ts.SyntaxKind.ExportKeyword)],
@@ -60,7 +60,29 @@ export function createDeclarationForType(type: protobufjs.Type, substitutions: S
       undefined,
       field.name,
       field.required ? undefined : f.createToken(ts.SyntaxKind.QuestionToken),
-      getFieldType(field, substitutions)
+      getFieldType(field, subs)
     )),
   )
+}
+
+function createEnumDeclaration(type: protobufjs.Enum) {
+  return f.createEnumDeclaration(
+    undefined,
+    [f.createToken(ts.SyntaxKind.ExportKeyword)],
+    type.name,
+    Object.entries(type.values).map(([name, id]) => f.createEnumMember(
+      name,
+      f.createNumericLiteral(id),
+    ))
+  )
+}
+
+export function createDeclarationForType(type: protobufjs.ReflectionObject, substitutions: SubstitutionsMap) {
+  if(type instanceof protobufjs.Enum) {
+    return createEnumDeclaration(type);
+  } else if(type instanceof protobufjs.Type) {
+    return createMessageDeclaration(type, substitutions);
+  } else {
+    return undefined
+  }
 }

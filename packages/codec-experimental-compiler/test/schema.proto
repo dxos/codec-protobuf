@@ -28,10 +28,16 @@ message AllTypes {
   map<string, Key> mappedField = 18;
 }
 
+enum TaskType {
+  IN_PROGRESS = 1;
+  COMPLETED = 2;
+}
+
 message Task {
   string id = 1;
   string title = 2;
   required Key key = 3;
+  required TaskType type = 4;
 }
 
 

@@ -24,6 +24,7 @@ export function createMappingDescriptors(substitutions: Substitutions): Bidirect
 export function mapMessage(type: protobufjs.Type, substitutions: MapingDescriptors, obj: any) {
   const res: any = {}
   for (const field of type.fieldsArray) {
+    if(!(field.name in obj)) continue;
     res[field.name] = mapField(field, substitutions, obj[field.name]);
   }
   return res
