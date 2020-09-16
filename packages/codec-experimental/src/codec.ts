@@ -61,6 +61,11 @@ function mapScalarField(field: protobufjs.Field, substitutions: MapingDescriptor
 }
 
 export class Serializer {
+  static fromJsonSchema(schema: any, substitutions: Substitutions) {
+    const root = protobufjs.Root.fromJSON(schema);
+    return new Serializer(root, substitutions);
+  }
+
   private readonly _mapping: BidirectionalMapingDescriptors;
 
   constructor(

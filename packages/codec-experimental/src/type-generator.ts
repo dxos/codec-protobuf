@@ -97,17 +97,25 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
 
   const schemaJSON = root.toJSON();
 
-  const codecIdentifier = ts.factory.createIdentifier('Codec')
+  const serializerIdentifier = ts.factory.createIdentifier('Serializer')
 
-  const outFilePath = join(__dirname, './gen/types.ts')
+  const outFilePath = join(__dirname, './gen/serializer.ts')
 
-  const codecImport = ts.factory.createImportDeclaration(
+  const serializerImport = ts.factory.createImportDeclaration(
     [],
     [],
     ts.factory.createImportClause(false, undefined, ts.factory.createNamedImports([
-      ts.factory.createImportSpecifier(undefined, codecIdentifier)
+      ts.factory.createImportSpecifier(undefined, serializerIdentifier)
     ])),
     ts.factory.createStringLiteral(CODEC_MODULE.forContext(dirname(outFilePath)))
+  )
+
+  const substitutionsIdentifier = ts.factory.createIdentifier('substitutions')
+  const substitutionsImport = ts.factory.createImportDeclaration(
+    [],
+    [],
+    ts.factory.createImportClause(false, substitutionsIdentifier, undefined),
+    ts.factory.createStringLiteral(new ModuleSpecifier('./substitutions', __dirname).forContext(dirname(outFilePath))),
   )
 
   const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
@@ -117,7 +125,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
   )) 
 
-  const schemaIdentifier = ts.factory.createIdentifier('SCHEMA_JSON');
+  const schemaIdentifier = ts.factory.createIdentifier('schemaJson');
   const schemaExport = ts.factory.createVariableStatement(
     [ts.createToken(ts.SyntaxKind.ExportKeyword)],
     ts.factory.createVariableDeclarationList([
@@ -134,12 +142,30 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     ], ts.NodeFlags.Const)
   )
 
+  const serializerExport = ts.factory.createVariableStatement(
+    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+    ts.factory.createVariableDeclarationList([
+      ts.factory.createVariableDeclaration(
+        ts.factory.createIdentifier('serializer'),
+        undefined,
+        undefined,
+        ts.factory.createCallExpression(
+          ts.factory.createPropertyAccessExpression(serializerIdentifier, 'fromJsonSchema'),
+          undefined,
+          [schemaIdentifier, substitutionsIdentifier]
+        )
+      )
+    ], ts.NodeFlags.Const)
+  )
+
   const generatedSourceFile = ts.factory.createSourceFile(
     [
-      codecImport,
+      serializerImport,
       ...importDeclarations,
+      substitutionsImport,
       ...declarations,
       schemaExport,
+      serializerExport,
     ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
     ts.NodeFlags.None

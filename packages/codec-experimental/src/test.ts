@@ -1,12 +1,7 @@
-import protobufjs from 'protobufjs';
-import { Serializer } from './codec';
-import substitutions from './substitutions';
+import { serializer } from './gen/serializer';
 import { MyKey } from './my-key';
 
-
 (async () => {
-  const root = await protobufjs.load(require.resolve('./schema.proto'));
-  const serializer = new Serializer(root, substitutions);
   const codec = serializer.getCodecForType('TaskList')
 
   const initial = {
