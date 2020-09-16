@@ -22,6 +22,10 @@ message AllTypes {
   bool boolField = 13;
   string stringField = 14;
   bytes bytesField = 15;
+
+  repeated Key repeatedField = 16;
+  required Key requiredField = 17;
+  map<string, Key> mappedField = 18;
 }
 
 message Task {

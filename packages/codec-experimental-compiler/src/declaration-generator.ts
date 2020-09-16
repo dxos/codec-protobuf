@@ -7,6 +7,11 @@ const f = ts.factory;
 function getFieldType(field: protobufjs.Field, subs: SubstitutionsMap): ts.TypeNode {
   if(field.repeated) {
     return f.createArrayTypeNode(getScalarType(field, subs))
+  } else if(field.map && field instanceof protobufjs.MapField) {
+    return f.createTypeReferenceNode('Partial', [f.createTypeReferenceNode('Record', [
+      f.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      getScalarType(field, subs),
+    ])]);
   } else {
     return getScalarType(field, subs)
   }
