@@ -10,12 +10,12 @@ test('encode and decode', async () => {
       {
         id: 'foo',
         title: 'Bar',
-        key: new MyKey('key'),
+        key: new MyKey(Buffer.from('foo')),
       },
       {
         id: 'baz',
         title: 'Baz',
-        key: new MyKey('key2'),
+        key: new MyKey(Buffer.from('foo')),
       }
     ],
   }

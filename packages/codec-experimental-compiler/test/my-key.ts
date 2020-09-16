@@ -1,5 +1,5 @@
 export class MyKey {
   constructor(
-    public keyData: string,
+    public keyData: Uint8Array,
   ) {}
 }
