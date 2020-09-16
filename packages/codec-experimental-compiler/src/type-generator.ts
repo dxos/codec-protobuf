@@ -2,18 +2,12 @@ import protobufjs from 'protobufjs';
 import * as ts from 'typescript'
 import { writeFileSync } from 'fs'
 import { ModuleSpecifier } from './module-specifier';
-import { resolve, dirname } from 'path'
+import { dirname } from 'path'
 import { parseSubstitutionsFile } from './substitutions-parser';
 import { createDeclarationForType } from './declaration-generator';
 import { createSerializerDefinition } from './serializer-definition-generator';
 
-(async () => {
-  const [,,protoFileArg, substitutionsFileArg, outFileArg] = process.argv;
-
-  const substitutionsModule = ModuleSpecifier.resolveFromFilePath(substitutionsFileArg, process.cwd(), '.ts');
-  const protoFilePath = resolve(process.cwd(), protoFileArg);
-  const outFilePath = resolve(process.cwd(), outFileArg);
-
+export async function compileSchema(substitutionsModule: ModuleSpecifier, protoFilePath: string, outFilePath: string) {
   const { imports, substitutions } = parseSubstitutionsFile(substitutionsModule.resolve())
   const root = await protobufjs.load(protoFilePath);
 
@@ -48,4 +42,4 @@ import { createSerializerDefinition } from './serializer-definition-generator';
   const source = printer.printFile(generatedSourceFile);
 
   writeFileSync(outFilePath, source);
-})();
+}

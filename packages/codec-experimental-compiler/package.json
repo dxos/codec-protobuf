@@ -6,10 +6,16 @@
   "scripts": {
     "build": "tsc",
     "gen": "ts-node src/type-generator.ts test/schema.proto test/substitutions.ts test/gen/serializer.ts",
-    "test": "ts-node test/test.ts"
+    "test": "yarn gen && jest"
   },
   "devDependencies": {
+    "jest": "^26.4.2",
+    "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.2"
+  },
+  "jest": {
+    "preset": "ts-jest/presets/default",
+    "testEnvironment": "node"
   }
 }

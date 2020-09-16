@@ -1,7 +1,7 @@
 import { serializer } from './gen/serializer';
 import { MyKey } from './my-key';
 
-(async () => {
+test('codec', async () => {
   const codec = serializer.getCodecForType('TaskList')
 
   const initial = {
@@ -18,11 +18,12 @@ import { MyKey } from './my-key';
       }
     ],
   }
-  console.log(initial)
 
   const encoded = codec.encode(initial)
-  console.log(encoded)
+  
+  expect(encoded).toBeInstanceOf(Uint8Array);
 
   const decoded = codec.decode(encoded)
-  console.log(decoded)
-})()
+
+  expect(decoded).toEqual(initial)
+})
