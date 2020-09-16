@@ -7,7 +7,27 @@ export interface SubstitutionDescriptor<T> {
 
 export type Substitutions = Record<string, SubstitutionDescriptor<any>>
 
-function mapMessage(type: protobufjs.Type, substitutions: Record<string, (value: any) => any>, obj: any) {
+type MapingDescriptors = Partial<Record<string, (value: any) => any>>
+
+interface BidirectionalMapingDescriptors {
+  encode: MapingDescriptors,
+  decode: MapingDescriptors,
+}
+
+function createMappingDescriptors(substitutions: Substitutions): BidirectionalMapingDescriptors {
+  const encode: MapingDescriptors = {}
+  const decode: MapingDescriptors = {}
+  for(const type of Object.keys(substitutions)) {
+    encode[type] = substitutions[type].encode;
+    decode[type] = substitutions[type].decode;
+  }
+  return {
+    encode,
+    decode
+  }
+}
+
+function mapMessage(type: protobufjs.Type, substitutions: MapingDescriptors, obj: any) {
   const res: any = {}
   for (const field of type.fieldsArray) {
     res[field.name] = mapField(field, substitutions, obj[field.name]);
@@ -15,7 +35,7 @@ function mapMessage(type: protobufjs.Type, substitutions: Record<string, (value:
   return res
 }
 
-function mapField(field: protobufjs.Field, substitutions: Record<string, (value: any) => any>, value: any) {
+function mapField(field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
   // TODO: handle map fields
   if(!field.required && (value === null || value === undefined)) {
     return value
@@ -26,7 +46,7 @@ function mapField(field: protobufjs.Field, substitutions: Record<string, (value:
   }
 }
 
-function mapScalarField(field: protobufjs.Field, substitutions: Record<string, (value: any) => any>, value: any) {
+function mapScalarField(field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
   if(!field.resolved) {
     field.resolve()
   }
@@ -40,29 +60,35 @@ function mapScalarField(field: protobufjs.Field, substitutions: Record<string, (
   }
 }
 
-export class SubstitutingCodec {
-  _encodeSubstitutions: Record<string, (value: any) => any>;
-  _decodeSubstitutions: Record<string, (value: any) => any>;
+export class Serializer {
+  private readonly _mapping: BidirectionalMapingDescriptors;
 
   constructor(
-    private readonly _type: protobufjs.Type,
-    _substitutions: Substitutions,
+    private readonly _typesRoot: protobufjs.Root,
+    substitutions: Substitutions,
   ) {
-    this._encodeSubstitutions = {}
-    this._decodeSubstitutions = {}
-    for(const type of Object.keys(_substitutions)) {
-      this._encodeSubstitutions[type] = _substitutions[type].encode;
-      this._decodeSubstitutions[type] = _substitutions[type].decode;
-    }
+    this._mapping = createMappingDescriptors(substitutions);
   }
 
+  getCodecForType(typeName: string) {
+    const type = this._typesRoot.lookupType(typeName);
+    return new Codec(type, this._mapping);
+  }
+}
+
+export class Codec {
+  constructor(
+    private readonly _type: protobufjs.Type,
+    private readonly _mapping: BidirectionalMapingDescriptors,
+  ) {}
+
   encode(value: any): Uint8Array {
-    const sub = mapMessage(this._type, this._encodeSubstitutions, value)
+    const sub = mapMessage(this._type, this._mapping.encode, value)
     return this._type.encode(sub).finish()
   }
 
   decode(data: Uint8Array): any {
     const obj = this._type.toObject(this._type.decode(data))
-    return mapMessage(this._type, this._decodeSubstitutions, obj)
+    return mapMessage(this._type, this._mapping.decode, obj)
   }
 }

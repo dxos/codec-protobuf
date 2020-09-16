@@ -1,13 +1,13 @@
 import protobufjs from 'protobufjs';
-import { SubstitutingCodec } from './codec';
+import { Serializer } from './codec';
 import substitutions from './substitutions';
 import { MyKey } from './my-key';
 
 
 (async () => {
   const root = await protobufjs.load(require.resolve('./schema.proto'));
-  const type = root.lookupType('TaskList');
-  const codec = new SubstitutingCodec(type, substitutions);
+  const serializer = new Serializer(root, substitutions);
+  const codec = serializer.getCodecForType('TaskList')
 
   const initial = {
     tasks: [

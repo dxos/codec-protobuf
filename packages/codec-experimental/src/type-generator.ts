@@ -97,7 +97,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
 
   const schemaJSON = root.toJSON();
 
-  const codecIdentifier = ts.factory.createIdentifier('SubstitutingCodec')
+  const codecIdentifier = ts.factory.createIdentifier('Codec')
 
   const outFilePath = join(__dirname, './gen/types.ts')
 

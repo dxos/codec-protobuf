@@ -1,4 +1,4 @@
-import { SubstitutingCodec } from "../codec";
+import { Codec } from "../codec";
 import { MyKey } from "../my-key";
 export interface Key {
     data: string;
