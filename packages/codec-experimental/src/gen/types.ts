@@ -1,3 +1,4 @@
+import { SubstitutingCodec } from "../codec";
 import { MyKey } from "../my-key";
 export interface Key {
     data: string;

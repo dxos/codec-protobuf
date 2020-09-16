@@ -1,7 +1,7 @@
 import protobufjs from 'protobufjs';
 import * as ts from 'typescript'
 import { writeFileSync } from 'fs'
-import { ModuleSpecifier } from './module-specifier';
+import { ModuleSpecifier, CODEC_MODULE } from './module-specifier';
 import { join, dirname } from 'path'
 
 interface ImportDescriptor {
@@ -95,6 +95,8 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     }
   }
 
+  const codecIdentifier = ts.factory.createIdentifier('SubstitutingCodec')
+
   const outFilePath = join(__dirname, './gen/types.ts')
 
   const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
@@ -103,8 +105,22 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     decriptor.clause,
     ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
   )) 
+
+  const codecImport = ts.factory.createImportDeclaration(
+    [],
+    [],
+    ts.factory.createImportClause(false, undefined, ts.factory.createNamedImports([
+      ts.factory.createImportSpecifier(undefined, codecIdentifier)
+    ])),
+    ts.factory.createStringLiteral(CODEC_MODULE.forContext(dirname(outFilePath)))
+  )
+
   const generatedSourceFile = ts.factory.createSourceFile(
-    [...importDeclarations, ...declarations],
+    [
+      codecImport,
+      ...importDeclarations,
+      ...declarations
+    ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
     ts.NodeFlags.None
   )

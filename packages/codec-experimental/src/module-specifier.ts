@@ -24,3 +24,5 @@ export class ModuleSpecifier {
     }
   }
 }
+
+export const CODEC_MODULE = new ModuleSpecifier('./codec', __dirname);
