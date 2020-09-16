@@ -44,7 +44,7 @@ export function mapScalarField(field: protobufjs.Field, substitutions: MapingDes
   if(!field.resolved) {
     field.resolve()
   }
-  const substitution = substitutions[field.type];
+  const substitution = field.resolvedType && substitutions[field.resolvedType.fullName.slice(1)];
   if(substitution) {
     return substitution(value); // TODO: handle recursive substitutions
   } else if(field.resolvedType && field.resolvedType instanceof protobufjs.Type) {

@@ -30,11 +30,11 @@ function getScalarType(field: protobufjs.Field, subs: SubstitutionsMap): ts.Type
     case 'string': return f.createKeywordTypeNode(ts.SyntaxKind.StringKeyword);
     case 'bytes': return f.createTypeReferenceNode('Uint8Array');
     default:
-      if(subs[field.type]) {
-        return f.createTypeReferenceNode(subs[field.type]!)
-      }
       if(!field.resolved) {
         field.resolve()
+      }
+      if(field.resolvedType && subs[field.resolvedType.fullName.slice(1)]) {
+        return f.createTypeReferenceNode(subs[field.resolvedType.fullName.slice(1)]!)
       }
       if(field.resolvedType) {
         return f.createTypeReferenceNode(field.resolvedType.name)

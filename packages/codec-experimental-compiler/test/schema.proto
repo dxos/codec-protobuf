@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package dxos.test;
+
 message Key {
   required bytes data = 1;
 }
