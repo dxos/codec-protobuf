@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`definitions 1`] = `
+"import { Serializer } from \\"@dxos/codec-experimental-runtime\\";
+import substitutions from \\"../substitutions\\";
+import { MyKey } from \\"../my-key\\";
+export interface Key {
+    data: string;
+}
+export interface AllTypes {
+    doubleField?: unknown;
+    floatField?: unknown;
+    int32Field?: unknown;
+    int64Field?: unknown;
+    uint32Field?: unknown;
+    uint64Field?: unknown;
+    sint32Field?: unknown;
+    sint64Field?: unknown;
+    fixed32Field?: unknown;
+    fixed64Field?: unknown;
+    sfixed32Field?: unknown;
+    sfixed64Field?: unknown;
+    boolField?: unknown;
+    stringField?: string;
+    bytesField?: unknown;
+}
+export interface Task {
+    id?: string;
+    title?: string;
+    key: MyKey;
+}
+export interface TaskList {
+    tasks?: Task[];
+}
+export const schemaJson = JSON.parse(\\"{\\\\\\"nested\\\\\\":{\\\\\\"Key\\\\\\":{\\\\\\"fields\\\\\\":{\\\\\\"data\\\\\\":{\\\\\\"rule\\\\\\":\\\\\\"required\\\\\\",\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"id\\\\\\":1}}},\\\\\\"AllTypes\\\\\\":{\\\\\\"fields\\\\\\":{\\\\\\"doubleField\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"double\\\\\\",\\\\\\"id\\\\\\":1},\\\\\\"floatField\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"float\\\\\\",\\\\\\"id\\\\\\":2},\\\\\\"int32Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"int32\\\\\\",\\\\\\"id\\\\\\":3},\\\\\\"int64Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"int64\\\\\\",\\\\\\"id\\\\\\":4},\\\\\\"uint32Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"uint32\\\\\\",\\\\\\"id\\\\\\":5},\\\\\\"uint64Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"uint64\\\\\\",\\\\\\"id\\\\\\":6},\\\\\\"sint32Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"sint32\\\\\\",\\\\\\"id\\\\\\":7},\\\\\\"sint64Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"sint64\\\\\\",\\\\\\"id\\\\\\":8},\\\\\\"fixed32Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"fixed32\\\\\\",\\\\\\"id\\\\\\":9},\\\\\\"fixed64Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"fixed64\\\\\\",\\\\\\"id\\\\\\":10},\\\\\\"sfixed32Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"sfixed32\\\\\\",\\\\\\"id\\\\\\":11},\\\\\\"sfixed64Field\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"sfixed64\\\\\\",\\\\\\"id\\\\\\":12},\\\\\\"boolField\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"bool\\\\\\",\\\\\\"id\\\\\\":13},\\\\\\"stringField\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"id\\\\\\":14},\\\\\\"bytesField\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"bytes\\\\\\",\\\\\\"id\\\\\\":15}}},\\\\\\"Task\\\\\\":{\\\\\\"fields\\\\\\":{\\\\\\"id\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"id\\\\\\":1},\\\\\\"title\\\\\\":{\\\\\\"type\\\\\\":\\\\\\"string\\\\\\",\\\\\\"id\\\\\\":2},\\\\\\"key\\\\\\":{\\\\\\"rule\\\\\\":\\\\\\"required\\\\\\",\\\\\\"type\\\\\\":\\\\\\"Key\\\\\\",\\\\\\"id\\\\\\":3}}},\\\\\\"TaskList\\\\\\":{\\\\\\"fields\\\\\\":{\\\\\\"tasks\\\\\\":{\\\\\\"rule\\\\\\":\\\\\\"repeated\\\\\\",\\\\\\"type\\\\\\":\\\\\\"Task\\\\\\",\\\\\\"id\\\\\\":1}}}}}\\");
+export const serializer = Serializer.fromJsonSchema(schemaJson, substitutions);
+"
+`;

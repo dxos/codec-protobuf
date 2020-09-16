@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "gen": "ts-node src/type-generator.ts test/schema.proto test/substitutions.ts test/gen/serializer.ts",
+    "gen": "ts-node src/main.ts test/schema.proto test/substitutions.ts test/gen/serializer.ts",
     "test": "yarn gen && jest"
   },
   "devDependencies": {
