@@ -25,4 +25,4 @@ export class ModuleSpecifier {
   }
 }
 
-export const CODEC_MODULE = new ModuleSpecifier('./codec', __dirname);
+export const CODEC_MODULE = new ModuleSpecifier('@dxos/codec-experimental-runtime', __dirname);

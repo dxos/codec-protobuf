@@ -1,4 +1,4 @@
-import { Serializer } from "../codec";
+import { Serializer } from "@dxos/codec-experimental-runtime";
 import { MyKey } from "../my-key";
 import substitutions from "../substitutions";
 export interface Key {

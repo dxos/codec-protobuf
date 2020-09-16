@@ -2,7 +2,13 @@
   "name": "@dxos/codec-monorepo",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "lerna run build --"
+  },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
 }

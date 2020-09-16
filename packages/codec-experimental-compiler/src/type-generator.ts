@@ -71,9 +71,9 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
 }
 
 (async () => {
-  const fileName = require.resolve('./substitutions.ts')
+  const fileName = require.resolve('../test/substitutions.ts')
   const { sourceFile, imports, subs } = parseSubsFile(fileName)
-  const root = await protobufjs.load(require.resolve('./schema.proto'));
+  const root = await protobufjs.load(require.resolve('../test/schema.proto'));
 
   const declarations: ts.Statement[] = []
   for (const obj of root.nestedArray) {
@@ -99,7 +99,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
 
   const serializerIdentifier = ts.factory.createIdentifier('Serializer')
 
-  const outFilePath = join(__dirname, './gen/serializer.ts')
+  const outFilePath = join(__dirname, '../test/gen/serializer.ts')
 
   const serializerImport = ts.factory.createImportDeclaration(
     [],
@@ -115,7 +115,7 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     [],
     [],
     ts.factory.createImportClause(false, substitutionsIdentifier, undefined),
-    ts.factory.createStringLiteral(new ModuleSpecifier('./substitutions', __dirname).forContext(dirname(outFilePath))),
+    ts.factory.createStringLiteral(new ModuleSpecifier('../test/substitutions', __dirname).forContext(dirname(outFilePath))),
   )
 
   const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(

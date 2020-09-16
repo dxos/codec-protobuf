@@ -1,0 +1,14 @@
+{
+  "name": "@dxos/codec-experimental-runtime",
+  "version": "1.0.0",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
+  }
+}
