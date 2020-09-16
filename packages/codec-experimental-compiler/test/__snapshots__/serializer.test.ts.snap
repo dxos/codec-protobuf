@@ -8,21 +8,21 @@ export interface Key {
     data: string;
 }
 export interface AllTypes {
-    doubleField?: unknown;
-    floatField?: unknown;
-    int32Field?: unknown;
-    int64Field?: unknown;
-    uint32Field?: unknown;
-    uint64Field?: unknown;
-    sint32Field?: unknown;
-    sint64Field?: unknown;
-    fixed32Field?: unknown;
-    fixed64Field?: unknown;
-    sfixed32Field?: unknown;
-    sfixed64Field?: unknown;
-    boolField?: unknown;
+    doubleField?: number;
+    floatField?: number;
+    int32Field?: number;
+    int64Field?: number;
+    uint32Field?: number;
+    uint64Field?: number;
+    sint32Field?: number;
+    sint64Field?: number;
+    fixed32Field?: number;
+    fixed64Field?: number;
+    sfixed32Field?: number;
+    sfixed64Field?: number;
+    boolField?: boolean;
     stringField?: string;
-    bytesField?: unknown;
+    bytesField?: Uint8Array;
 }
 export interface Task {
     id?: string;
