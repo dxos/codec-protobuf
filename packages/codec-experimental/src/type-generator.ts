@@ -95,16 +95,11 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     }
   }
 
+  const schemaJSON = root.toJSON();
+
   const codecIdentifier = ts.factory.createIdentifier('SubstitutingCodec')
 
   const outFilePath = join(__dirname, './gen/types.ts')
-
-  const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
-    [],
-    [],
-    decriptor.clause,
-    ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
-  )) 
 
   const codecImport = ts.factory.createImportDeclaration(
     [],
@@ -115,11 +110,36 @@ function getScalarType(field: protobufjs.Field, subs: Record<string, string>): t
     ts.factory.createStringLiteral(CODEC_MODULE.forContext(dirname(outFilePath)))
   )
 
+  const importDeclarations = imports.map(decriptor => ts.factory.createImportDeclaration(
+    [],
+    [],
+    decriptor.clause,
+    ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
+  )) 
+
+  const schemaIdentifier = ts.factory.createIdentifier('SCHEMA_JSON');
+  const schemaExport = ts.factory.createVariableStatement(
+    [ts.createToken(ts.SyntaxKind.ExportKeyword)],
+    ts.factory.createVariableDeclarationList([
+      ts.factory.createVariableDeclaration(
+        schemaIdentifier,
+        undefined,
+        undefined,
+        ts.factory.createCallExpression(
+          ts.factory.createPropertyAccessExpression(ts.factory.createIdentifier('JSON'), 'parse'),
+          undefined,
+          [ts.factory.createStringLiteral(JSON.stringify(schemaJSON))]
+        )
+      )
+    ], ts.NodeFlags.Const)
+  )
+
   const generatedSourceFile = ts.factory.createSourceFile(
     [
       codecImport,
       ...importDeclarations,
-      ...declarations
+      ...declarations,
+      schemaExport,
     ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
     ts.NodeFlags.None
