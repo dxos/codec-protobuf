@@ -3,7 +3,7 @@ import { MyKey } from './my-key';
 import { readFileSync } from 'fs'
 
 test('encode and decode', async () => {
-  const codec = serializer.getCodecForType('TaskList')
+  const codec = serializer.getCodecForType('dxos.test.TaskList')
 
   const initial: TaskList = {
     tasks: [

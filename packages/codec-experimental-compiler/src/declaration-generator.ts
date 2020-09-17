@@ -131,3 +131,32 @@ function convertNameToIdentifier(name: DeclarationFullName): ts.QualifiedName | 
     return f.createQualifiedName(convertNameToIdentifier(name.slice(0, -1)), name[name.length - 1])
   }
 }
+
+function* getRegisteredTypes(root: protobufjs.NamespaceBase): Generator<[string, DeclarationFullName]> {
+  for (const obj of root.nestedArray) {
+    if(obj instanceof protobufjs.Enum) {
+      yield [obj.fullName, getFullName(obj)];
+    } else if(obj instanceof protobufjs.Type) {
+      yield [obj.fullName, getFullName(obj)];
+      yield* getRegisteredTypes(obj);
+    } else if(obj instanceof protobufjs.Namespace) {
+      yield* getRegisteredTypes(obj);
+    }
+  }
+}
+
+export function createTypeDictinary(root: protobufjs.NamespaceBase) {
+  return f.createInterfaceDeclaration(
+    undefined,
+    [f.createToken(ts.SyntaxKind.ExportKeyword)],
+    'TYPES',
+    undefined,
+    undefined,
+    Array.from(getRegisteredTypes(root)).map(([protoName, tsName]) => f.createPropertySignature(
+      undefined,
+      f.createStringLiteral(protoName.slice(1)),
+      undefined,
+      f.createTypeReferenceNode(convertNameToIdentifier(tsName)),
+    )),
+  )
+}

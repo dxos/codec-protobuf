@@ -4,7 +4,7 @@ import { writeFileSync } from 'fs'
 import { ModuleSpecifier } from './module-specifier';
 import { dirname } from 'path'
 import { parseSubstitutionsFile } from './substitutions-parser';
-import { createDeclarations } from './declaration-generator';
+import { createDeclarations, createTypeDictinary } from './declaration-generator';
 import { createSerializerDefinition } from './serializer-definition-generator';
 
 export async function compileSchema(substitutionsModule: ModuleSpecifier, protoFilePath: string, outFilePath: string) {
@@ -27,6 +27,7 @@ export async function compileSchema(substitutionsModule: ModuleSpecifier, protoF
       ...schemaImports,
       ...importDeclarations,
       ...declarations,
+      createTypeDictinary(root),
       ...schemaExports,
     ],
     ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),

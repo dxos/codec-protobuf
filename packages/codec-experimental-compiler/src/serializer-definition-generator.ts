@@ -48,7 +48,7 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
         undefined,
         ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(serializerIdentifier, 'fromJsonSchema'),
-          undefined,
+          [ts.factory.createTypeReferenceNode('TYPES')],
           [schemaIdentifier, substitutionsIdentifier]
         )
       )
