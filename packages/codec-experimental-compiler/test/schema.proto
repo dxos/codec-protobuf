@@ -26,6 +26,26 @@ message AllTypes {
   repeated Key repeatedField = 16;
   required Key requiredField = 17;
   map<string, Key> mappedField = 18;
+
+  message Inner {
+    string foo = 1;
+    InnerEnum bar = 2;
+  }
+
+  enum InnerEnum {
+    FOO = 1;
+    BAR = 2;
+  }
+
+  Inner inner = 19;
+}
+
+message Outer {
+  AllTypes.Inner inner = 1;
+  
+  message Inner {
+    AllTypes.InnerEnum inner = 1;
+  }
 }
 
 enum TaskType {
