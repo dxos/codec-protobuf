@@ -1,9 +1,9 @@
-import { serializer, TaskList, TaskType } from './gen/serializer';
+import { schema, TaskList, TaskType } from './gen/schema';
 import { MyKey } from './my-key';
 import { readFileSync } from 'fs'
 
 test('encode and decode', async () => {
-  const codec = serializer.getCodecForType('dxos.test.TaskList')
+  const codec = schema.getCodecForType('dxos.test.TaskList')
 
   const initial: TaskList = {
     tasks: [
@@ -32,5 +32,5 @@ test('encode and decode', async () => {
 })
 
 test('definitions', () => {
-  expect(readFileSync(require.resolve('./gen/serializer'), { encoding: 'utf-8' })).toMatchSnapshot()
+  expect(readFileSync(require.resolve('./gen/schema'), { encoding: 'utf-8' })).toMatchSnapshot()
 })

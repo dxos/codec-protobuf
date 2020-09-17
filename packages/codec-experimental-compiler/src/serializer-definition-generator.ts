@@ -3,13 +3,13 @@ import * as ts from 'typescript';
 import { CODEC_MODULE, ModuleSpecifier } from './module-specifier';
 
 export function createSerializerDefinition(substitutionsModule: ModuleSpecifier, root: protobufjs.Root, outFileDir: string) {
-  const serializerIdentifier = ts.factory.createIdentifier('Serializer')
+  const schemaIdentifier = ts.factory.createIdentifier('Schema')
 
-  const serializerImport = ts.factory.createImportDeclaration(
+  const schemaImport = ts.factory.createImportDeclaration(
     [],
     [],
     ts.factory.createImportClause(false, undefined, ts.factory.createNamedImports([
-      ts.factory.createImportSpecifier(undefined, serializerIdentifier)
+      ts.factory.createImportSpecifier(undefined, schemaIdentifier)
     ])),
     ts.factory.createStringLiteral(CODEC_MODULE.forContext(outFileDir))
   )
@@ -22,12 +22,12 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
     ts.factory.createStringLiteral(substitutionsModule.forContext(outFileDir)),
   )
 
-  const schemaIdentifier = ts.factory.createIdentifier('schemaJson');
-  const schemaExport = ts.factory.createVariableStatement(
+  const schemaJsonIdentifier = ts.factory.createIdentifier('schemaJson');
+  const schemaJsonExport = ts.factory.createVariableStatement(
     [ts.createToken(ts.SyntaxKind.ExportKeyword)],
     ts.factory.createVariableDeclarationList([
       ts.factory.createVariableDeclaration(
-        schemaIdentifier,
+        schemaJsonIdentifier,
         undefined,
         undefined,
         ts.factory.createCallExpression(
@@ -39,24 +39,24 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
     ], ts.NodeFlags.Const)
   )
 
-  const serializerExport = ts.factory.createVariableStatement(
+  const schemaExport = ts.factory.createVariableStatement(
     [ts.createToken(ts.SyntaxKind.ExportKeyword)],
     ts.factory.createVariableDeclarationList([
       ts.factory.createVariableDeclaration(
-        ts.factory.createIdentifier('serializer'),
+        ts.factory.createIdentifier('schema'),
         undefined,
         undefined,
         ts.factory.createCallExpression(
-          ts.factory.createPropertyAccessExpression(serializerIdentifier, 'fromJsonSchema'),
+          ts.factory.createPropertyAccessExpression(schemaIdentifier, 'fromJson'),
           [ts.factory.createTypeReferenceNode('TYPES')],
-          [schemaIdentifier, substitutionsIdentifier]
+          [schemaJsonIdentifier, substitutionsIdentifier]
         )
       )
     ], ts.NodeFlags.Const)
   )
 
   return {
-    imports: [serializerImport, substitutionsImport],
-    exports: [schemaExport, serializerExport],
+    imports: [schemaImport, substitutionsImport],
+    exports: [schemaJsonExport, schemaExport],
   }
 }

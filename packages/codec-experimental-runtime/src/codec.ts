@@ -2,10 +2,10 @@ import protobufjs from 'protobufjs';
 import { Substitutions } from './common';
 import { BidirectionalMapingDescriptors, createMappingDescriptors, mapMessage } from './mapping';
 
-export class Serializer<T> {
-  static fromJsonSchema<T extends Record<string, any>>(schema: any, substitutions: Substitutions) {
+export class Schema<T> {
+  static fromJson<T extends Record<string, any>>(schema: any, substitutions: Substitutions = {}) {
     const root = protobufjs.Root.fromJSON(schema);
-    return new Serializer<T>(root, substitutions);
+    return new Schema<T>(root, substitutions);
   }
 
   private readonly _mapping: BidirectionalMapingDescriptors;
