@@ -19,7 +19,7 @@ export async function compileSchema(substitutionsModule: ModuleSpecifier, protoF
     [],
     [],
     decriptor.clause,
-    ts.factory.createStringLiteral(decriptor.module.forContext(dirname(outFilePath))),
+    ts.factory.createStringLiteral(decriptor.module.importSpecifier(dirname(outFilePath))),
   )) 
   
   const generatedSourceFile = ts.factory.createSourceFile(

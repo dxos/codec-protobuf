@@ -5,13 +5,12 @@ import assert from 'assert'
  * Represents a reference to a module, either as an relative path with the cwd or as a global module specifier.
  */
 export class ModuleSpecifier {
-  static resolveFromFilePath(path: string, context: string, extension?: string) {
+  static resolveFromFilePath(path: string, context: string) {
     // Normalize path.
     const relativePath = relative(context, resolve(context, path));
     const pathWithDot = relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
-    const moduleName = extension ? removeExtension(pathWithDot, extension) : pathWithDot;
 
-    return new ModuleSpecifier(moduleName, context)
+    return new ModuleSpecifier(pathWithDot, context)
   }
 
   constructor(
@@ -25,11 +24,17 @@ export class ModuleSpecifier {
     return !this.name.startsWith('.');
   }
 
-  forContext(newContextPath: string) {
+  importSpecifier(importContext: string) {
     if(this.isAbsolute()) {
       return this.name;
     } else {
-      return relative(newContextPath, resolve(this.contextPath, this.name));
+      const relativePath = relative(importContext, resolve(this.contextPath, this.name));
+      for(const ext of ['.js', '.ts']) {
+        if(relativePath.endsWith(ext)) {
+          return removeExtension(relativePath, ext)
+        }
+      }
+      return relativePath;
     }
   }
 

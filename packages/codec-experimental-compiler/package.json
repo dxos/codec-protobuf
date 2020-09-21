@@ -8,6 +8,9 @@
     "gen": "ts-node src/main.ts test/schema.proto test/substitutions.ts test/gen/schema.ts",
     "test": "yarn gen && jest"
   },
+  "bin": {
+    "build-protobuf": "./dist/src/main.js"
+  },
   "devDependencies": {
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0",

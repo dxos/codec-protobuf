@@ -11,7 +11,7 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
     ts.factory.createImportClause(false, undefined, ts.factory.createNamedImports([
       ts.factory.createImportSpecifier(undefined, schemaIdentifier)
     ])),
-    ts.factory.createStringLiteral(CODEC_MODULE.forContext(outFileDir))
+    ts.factory.createStringLiteral(CODEC_MODULE.importSpecifier(outFileDir))
   )
 
   const substitutionsIdentifier = ts.factory.createIdentifier('substitutions')
@@ -19,7 +19,7 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
     [],
     [],
     ts.factory.createImportClause(false, substitutionsIdentifier, undefined),
-    ts.factory.createStringLiteral(substitutionsModule.forContext(outFileDir)),
+    ts.factory.createStringLiteral(substitutionsModule.importSpecifier(outFileDir)),
   )
 
   const schemaJsonIdentifier = ts.factory.createIdentifier('schemaJson');
