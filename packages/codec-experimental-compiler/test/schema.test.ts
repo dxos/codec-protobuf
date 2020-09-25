@@ -1,6 +1,8 @@
-import { schema, TaskList, TaskType } from './gen/schema';
+import { schema } from './gen';
+import { TaskList, TaskType } from './gen/dxos/test'
 import { MyKey } from './my-key';
-import { readFileSync } from 'fs'
+import { readFileSync, readdirSync, lstatSync } from 'fs'
+import { join } from 'path'
 
 test('encode and decode', async () => {
   const codec = schema.getCodecForType('dxos.test.TaskList')
@@ -32,5 +34,28 @@ test('encode and decode', async () => {
 })
 
 test('definitions', () => {
-  expect(readFileSync(require.resolve('./gen/schema'), { encoding: 'utf-8' })).toMatchSnapshot()
+  expect(readDirectoryFiles(join(__dirname, 'gen'))).toMatchSnapshot()
 })
+
+
+function readDirectoryFiles(dir: string) {
+  let res = ''
+  for(const file of listFilesRecursive(dir)) {
+    res += `${file}:\n`
+    res += readFileSync(join(dir, file), { encoding: 'utf-8' })
+    res += '\n'
+  }
+  return res
+}
+
+function* listFilesRecursive(dir: string): Generator<string> {
+  for (const file of readdirSync(dir)) {
+    if(lstatSync(join(dir, file)).isDirectory()) {
+      for(const sub of listFilesRecursive(join(dir, file))) {
+        yield join(file, sub)
+      }
+    } else {
+      yield file;
+    }
+  }
+}

@@ -28,7 +28,7 @@ export class ModuleSpecifier {
     if(this.isAbsolute()) {
       return this.name;
     } else {
-      const relativePath = relative(importContext, resolve(this.contextPath, this.name));
+      const relativePath = normalizeRelativePath(relative(importContext, resolve(this.contextPath, this.name)))
       for(const ext of ['.js', '.ts']) {
         if(relativePath.endsWith(ext)) {
           return removeExtension(relativePath, ext)
@@ -44,6 +44,14 @@ export class ModuleSpecifier {
 }
 
 export const CODEC_MODULE = new ModuleSpecifier('@dxos/codec-experimental-runtime', __dirname);
+
+function normalizeRelativePath(path: string) {
+  if(!path.startsWith('.')) {
+    return `./${path}`
+  } else {
+    return path
+  }
+}
 
 function removeExtension(path: string, extension: string) {
   if(path.endsWith(extension)) {

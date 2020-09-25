@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "gen": "ts-node src/main.ts test/schema.proto test/substitutions.ts test/gen/schema.ts",
+    "gen": "ts-node src/main.ts test/schema.proto test/substitutions.ts test/gen",
     "test": "yarn gen && jest"
   },
   "bin": {
@@ -19,6 +19,7 @@
   },
   "jest": {
     "preset": "ts-jest/presets/default",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "modulePathIgnorePatterns": ["test/gen"]
   }
 }
