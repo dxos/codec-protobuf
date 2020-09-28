@@ -1,6 +1,6 @@
 {
   "name": "@dxos/codec-experimental-compiler",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -20,6 +20,8 @@
   "jest": {
     "preset": "ts-jest/presets/default",
     "testEnvironment": "node",
-    "modulePathIgnorePatterns": ["test/gen"]
+    "modulePathIgnorePatterns": [
+      "test/gen"
+    ]
   }
 }
