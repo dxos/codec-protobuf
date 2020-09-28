@@ -1,5 +1,6 @@
 import * as ts from 'typescript'
 import { dirname } from 'path'
+import assert from 'assert'
 import { ModuleSpecifier } from './module-specifier';
 
 export interface ImportDescriptor {
@@ -31,8 +32,9 @@ export function parseSubstitutionsFile(fileName: string) {
         const decodeSymbol = (symbolType as any).members.get('decode') as ts.Symbol
         const decodeSymbolType = typeChecker.getTypeOfSymbolAtLocation(decodeSymbol, decodeSymbol.valueDeclaration)
         const callsignature = decodeSymbolType.getCallSignatures()[0]
-        const returnTypeName = typeChecker.getReturnTypeOfSignature(callsignature).getSymbol()?.name
-        substitutions[key] = returnTypeName!
+        const returnTypeSymbol = typeChecker.getReturnTypeOfSignature(callsignature).getSymbol();
+        assert(returnTypeSymbol)
+        substitutions[key] = returnTypeSymbol.name
       }
     } else if(ts.isImportDeclaration(node)) {
       if(ts.isStringLiteral(node.moduleSpecifier) && node.importClause) {

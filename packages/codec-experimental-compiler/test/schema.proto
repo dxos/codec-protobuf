@@ -76,3 +76,7 @@ message Task {
 message TaskList {
   repeated Task tasks = 1;
 }
+
+message SubstitutedByInterface {
+  string foo = 1;
+}
