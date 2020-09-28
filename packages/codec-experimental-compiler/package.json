@@ -21,7 +21,11 @@
     "preset": "ts-jest/presets/default",
     "testEnvironment": "node",
     "modulePathIgnorePatterns": [
-      "test/gen"
+      "test/gen",
+      "dist"
     ]
+  },
+  "dependencies": {
+    "chalk": "^4.1.0"
   }
 }

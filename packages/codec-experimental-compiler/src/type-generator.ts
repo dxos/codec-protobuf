@@ -1,8 +1,9 @@
 import protobufjs from 'protobufjs';
 import * as ts from 'typescript'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
-import { ModuleSpecifier } from './module-specifier';
+import chalk from 'chalk';
 import { dirname, join } from 'path'
+import { ModuleSpecifier } from './module-specifier';
 import { parseSubstitutionsFile } from './substitutions-parser';
 import { createDeclarations, createTypeDictinary } from './declaration-generator';
 import { createSerializerDefinition } from './serializer-definition-generator';
@@ -11,7 +12,28 @@ import { getSafeNamespaceIdentifier, parseFullyQualifiedName, splitSchemaIntoNam
 const f = ts.factory;
 
 export async function compileSchema(substitutionsModule: ModuleSpecifier, protoFilePath: string, outDirPath: string) {
+
+  console.log(`Compiling protobuf definitions`)
+  console.log(``)
+  console.log(chalk`       Proto file: {bold ${protoFilePath}}`)
+  console.log(chalk`Substitution file: {bold ${substitutionsModule.resolve()}}`)
+  console.log(chalk` Output directory: {bold ${outDirPath}}`)
+  console.log();
+
   const { imports, substitutions } = parseSubstitutionsFile(substitutionsModule.resolve())
+
+  if(Object.keys(substitutions).length > 0) {
+    console.log(chalk`Loaded {bold ${Object.keys(substitutions).length}} substitutions:`);
+    console.log();
+    for(const [protoType, tsType] of Object.entries(substitutions)) {
+      console.log(chalk`  {bold ${protoType}} -> {bold ${tsType}}`)
+    }
+    console.log()
+  } else {
+    console.log(`No substitutions loaded`);
+    console.log();
+  }
+
   const root = await protobufjs.load(protoFilePath);
 
   const namespaces = splitSchemaIntoNamespaces(root)
