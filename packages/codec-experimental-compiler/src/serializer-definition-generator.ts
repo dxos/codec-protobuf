@@ -2,7 +2,7 @@ import protobufjs from 'protobufjs';
 import * as ts from 'typescript';
 import { CODEC_MODULE, ModuleSpecifier } from './module-specifier';
 
-export function createSerializerDefinition(substitutionsModule: ModuleSpecifier, root: protobufjs.Root, outFileDir: string) {
+export function createSerializerDefinition(substitutionsModule: ModuleSpecifier | undefined, root: protobufjs.Root, outFileDir: string): { imports: ts.Statement[], exports: ts.Statement[] } {
   const schemaIdentifier = ts.factory.createIdentifier('Schema')
 
   const schemaImport = ts.factory.createImportDeclaration(
@@ -15,7 +15,7 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
   )
 
   const substitutionsIdentifier = ts.factory.createIdentifier('substitutions')
-  const substitutionsImport = ts.factory.createImportDeclaration(
+  const substitutionsImport = substitutionsModule && ts.factory.createImportDeclaration(
     [],
     [],
     ts.factory.createImportClause(false, substitutionsIdentifier, undefined),
@@ -49,14 +49,14 @@ export function createSerializerDefinition(substitutionsModule: ModuleSpecifier,
         ts.factory.createCallExpression(
           ts.factory.createPropertyAccessExpression(schemaIdentifier, 'fromJson'),
           [ts.factory.createTypeReferenceNode('TYPES')],
-          [schemaJsonIdentifier, substitutionsIdentifier]
+          substitutionsModule ? [schemaJsonIdentifier, substitutionsIdentifier] : [schemaJsonIdentifier],
         )
       )
     ], ts.NodeFlags.Const)
   )
 
   return {
-    imports: [schemaImport, substitutionsImport],
+    imports: substitutionsImport ? [schemaImport, substitutionsImport] : [schemaImport],
     exports: [schemaJsonExport, schemaExport],
   }
 }
