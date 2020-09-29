@@ -41,7 +41,7 @@ function getScalarType(field: protobufjs.Field, subs: SubstitutionsMap): ts.Type
         field.resolve()
       }
       if(field.resolvedType && subs[field.resolvedType.fullName.slice(1)]) {
-        return f.createTypeReferenceNode(subs[field.resolvedType.fullName.slice(1)]!)
+        return subs[field.resolvedType.fullName.slice(1)]!.typeNode
       }
       if(field.resolvedType) {
         assert(field.message)

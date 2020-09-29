@@ -26,7 +26,7 @@ export async function compileSchema(substitutionsModule: ModuleSpecifier, protoF
     console.log(chalk`Loaded {bold ${Object.keys(substitutions).length}} substitutions:`);
     console.log();
     for(const [protoType, tsType] of Object.entries(substitutions)) {
-      console.log(chalk`  {bold ${protoType}} -> {bold ${tsType}}`)
+      console.log(chalk`  {bold ${protoType}} -> {bold ${tsType!.name}}`)
     }
     console.log()
   } else {
