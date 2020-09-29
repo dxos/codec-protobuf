@@ -11,16 +11,16 @@ import { getSafeNamespaceIdentifier, parseFullyQualifiedName, splitSchemaIntoNam
 
 const f = ts.factory;
 
-export async function compileSchema(substitutionsModule: ModuleSpecifier, protoFilePath: string, outDirPath: string) {
+export async function compileSchema(substitutionsModule: ModuleSpecifier | undefined, protoFilePath: string, outDirPath: string) {
 
   console.log(`Compiling protobuf definitions`)
   console.log(``)
   console.log(chalk`       Proto file: {bold ${protoFilePath}}`)
-  console.log(chalk`Substitution file: {bold ${substitutionsModule.resolve()}}`)
+  substitutionsModule && console.log(chalk`Substitution file: {bold ${substitutionsModule.resolve()}}`)
   console.log(chalk` Output directory: {bold ${outDirPath}}`)
   console.log();
 
-  const { imports, substitutions } = parseSubstitutionsFile(substitutionsModule.resolve())
+  const { imports, substitutions } = substitutionsModule ? parseSubstitutionsFile(substitutionsModule.resolve()) : { imports: [], substitutions: {} }
 
   if(Object.keys(substitutions).length > 0) {
     console.log(chalk`Loaded {bold ${Object.keys(substitutions).length}} substitutions:`);
