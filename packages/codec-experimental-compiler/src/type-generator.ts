@@ -2,13 +2,13 @@
 // Copyright 2020 DXOS.org
 //
 
-import chalk from 'chalk';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { dirname, join } from 'path';
 import protobufjs from 'protobufjs';
 import * as ts from 'typescript';
 
 import { createDeclarations, createTypeDictinary } from './declaration-generator';
+import { logger } from './logger';
 import { ModuleSpecifier } from './module-specifier';
 import { getSafeNamespaceIdentifier, parseFullyQualifiedName, splitSchemaIntoNamespaces } from './namespaces';
 import { createSerializerDefinition } from './serializer-definition-generator';
@@ -17,26 +17,8 @@ import { parseSubstitutionsFile } from './substitutions-parser';
 const f = ts.factory;
 
 export async function compileSchema (substitutionsModule: ModuleSpecifier | undefined, protoFilePath: string, outDirPath: string) {
-  console.log('Compiling protobuf definitions');
-  console.log('');
-  console.log(chalk`       Proto file: {bold ${protoFilePath}}`);
-  substitutionsModule && console.log(chalk`Substitution file: {bold ${substitutionsModule.resolve()}}`);
-  console.log(chalk` Output directory: {bold ${outDirPath}}`);
-  console.log();
-
   const { imports, substitutions } = substitutionsModule ? parseSubstitutionsFile(substitutionsModule.resolve()) : { imports: [], substitutions: {} };
-
-  if (Object.keys(substitutions).length > 0) {
-    console.log(chalk`Loaded {bold ${Object.keys(substitutions).length}} substitutions:`);
-    console.log();
-    for (const [protoType, tsType] of Object.entries(substitutions)) {
-      console.log(chalk`  {bold ${protoType}} -> {bold ${tsType!.name}}`);
-    }
-    console.log();
-  } else {
-    console.log('No substitutions loaded');
-    console.log();
-  }
+  logger.logParsedSubstitutions(substitutions);
 
   const root = await protobufjs.load(protoFilePath);
 

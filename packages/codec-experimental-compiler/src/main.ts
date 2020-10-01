@@ -8,6 +8,7 @@ import { ArgumentParser } from 'argparse';
 import { resolve } from 'path';
 import readPkg from 'read-pkg';
 
+import { logger } from './logger';
 import { ModuleSpecifier } from './module-specifier';
 import { compileSchema } from './type-generator';
 
@@ -33,6 +34,8 @@ import { compileSchema } from './type-generator';
   const substitutionsModule = substitutions ? ModuleSpecifier.resolveFromFilePath(substitutions, process.cwd()) : undefined;
   const protoFilePath = resolve(process.cwd(), proto[0]);
   const outDirPath = resolve(process.cwd(), outDir);
+
+  logger.logCompilationOptions(substitutionsModule, protoFilePath, outDirPath);
 
   compileSchema(substitutionsModule, protoFilePath, outDirPath);
 })();
