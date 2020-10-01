@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "test": "echo No tests",
     "lint": "eslint 'src/**/*.ts'"
   },
   "devDependencies": {
