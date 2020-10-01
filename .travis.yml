@@ -5,3 +5,4 @@ node_js:
   - '12'
   - '10'
 after_success: yarn coveralls
+script: yarn build && yarn test
