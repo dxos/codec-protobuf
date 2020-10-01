@@ -6,14 +6,17 @@
   "scripts": {
     "build": "tsc",
     "gen": "ts-node src/main.ts test/schema.proto -s test/substitutions.ts -o test/gen",
-    "test": "yarn gen && jest"
+    "test": "yarn gen && jest",
+    "lint": "eslint 'src/**/*.ts'"
   },
   "bin": {
     "build-protobuf": "./dist/src/main.js"
   },
   "devDependencies": {
+    "@dxos/eslint-plugin": "^1.0.5",
     "@types/argparse": "^2.0.0",
     "@types/read-pkg": "^5.1.0",
+    "eslint": "^7.10.0",
     "jest": "^26.4.2",
     "ts-jest": "^26.3.0",
     "ts-node": "^9.0.0",
@@ -31,5 +34,8 @@
     "argparse": "^2.0.1",
     "chalk": "^4.1.0",
     "read-pkg": "^5.2.0"
+  },
+  "eslintConfig": {
+    "extends": "plugin:@dxos/recomended"
   }
 }

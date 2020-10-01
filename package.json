@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "lerna run build --"
+    "build": "yarn workspaces run build",
+    "test": "yarn workspaces run test",
+    "lint": "yarn workspaces run lint"
   },
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "lerna": "^3.22.1"
-  }
+  ]
 }

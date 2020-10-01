@@ -1,62 +1,66 @@
-import { isAbsolute, resolve, relative } from 'path'
-import assert from 'assert'
+//
+// Copyright 2020 DXOS.org
+//
+
+import assert from 'assert';
+import { isAbsolute, resolve, relative } from 'path';
 
 /**
  * Represents a reference to a module, either as an relative path with the cwd or as a global module specifier.
  */
 export class ModuleSpecifier {
-  static resolveFromFilePath(path: string, context: string) {
+  static resolveFromFilePath (path: string, context: string) {
     // Normalize path.
     const relativePath = relative(context, resolve(context, path));
     const pathWithDot = relativePath.startsWith('.') ? relativePath : `./${relativePath}`;
 
-    return new ModuleSpecifier(pathWithDot, context)
+    return new ModuleSpecifier(pathWithDot, context);
   }
 
-  constructor(
+  constructor (
     public readonly name: string,
-    public readonly contextPath: string,
+    public readonly contextPath: string
   ) {
-    assert(isAbsolute(contextPath))
+    assert(isAbsolute(contextPath));
   }
 
-  isAbsolute() {
+  isAbsolute () {
     return !this.name.startsWith('.');
   }
 
-  importSpecifier(importContext: string) {
-    if(this.isAbsolute()) {
+  importSpecifier (importContext: string) {
+    if (this.isAbsolute()) {
       return this.name;
     } else {
-      const relativePath = normalizeRelativePath(relative(importContext, resolve(this.contextPath, this.name)))
-      for(const ext of ['.js', '.ts']) {
-        if(relativePath.endsWith(ext)) {
-          return removeExtension(relativePath, ext)
+      const relativePath = normalizeRelativePath(relative(importContext, resolve(this.contextPath, this.name)));
+      for (const ext of ['.js', '.ts']) {
+        if (relativePath.endsWith(ext)) {
+          return removeExtension(relativePath, ext);
         }
       }
       return relativePath;
     }
   }
 
-  resolve() {
+  resolve () {
     return require.resolve(this.name, { paths: [this.contextPath] });
   }
 }
 
 export const CODEC_MODULE = new ModuleSpecifier('@dxos/codec-experimental-runtime', __dirname);
 
-function normalizeRelativePath(path: string) {
-  if(!path.startsWith('.')) {
-    return `./${path}`
+function normalizeRelativePath (path: string) {
+  if (!path.startsWith('.')) {
+    return `./${path}`;
   } else {
-    return path
+    return path;
   }
 }
 
-function removeExtension(path: string, extension: string) {
-  if(path.endsWith(extension)) {
+function removeExtension (path: string, extension: string) {
+  if (path.endsWith(extension)) {
     return path.slice(0, -extension.length);
   } else {
-    return path
+    return path;
   }
 }

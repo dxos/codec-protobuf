@@ -1,4 +1,9 @@
+//
+// Copyright 2020 DXOS.org
+//
+
 import protobufjs from 'protobufjs';
+
 import { Substitutions } from './common';
 
 export type MapingDescriptors = Partial<Record<string, (value: any) => any>>
@@ -8,49 +13,49 @@ export interface BidirectionalMapingDescriptors {
   decode: MapingDescriptors,
 }
 
-export function createMappingDescriptors(substitutions: Substitutions): BidirectionalMapingDescriptors {
-  const encode: MapingDescriptors = {}
-  const decode: MapingDescriptors = {}
-  for(const type of Object.keys(substitutions)) {
+export function createMappingDescriptors (substitutions: Substitutions): BidirectionalMapingDescriptors {
+  const encode: MapingDescriptors = {};
+  const decode: MapingDescriptors = {};
+  for (const type of Object.keys(substitutions)) {
     encode[type] = substitutions[type].encode;
     decode[type] = substitutions[type].decode;
   }
   return {
     encode,
     decode
-  }
+  };
 }
 
-export function mapMessage(type: protobufjs.Type, substitutions: MapingDescriptors, obj: any) {
-  const res: any = {}
+export function mapMessage (type: protobufjs.Type, substitutions: MapingDescriptors, obj: any) {
+  const res: any = {};
   for (const field of type.fieldsArray) {
-    if(!(field.name in obj)) continue;
+    if (!(field.name in obj)) continue;
     res[field.name] = mapField(field, substitutions, obj[field.name]);
   }
-  return res
+  return res;
 }
 
-export function mapField(field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
+export function mapField (field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
   // TODO: handle map fields
-  if(!field.required && (value === null || value === undefined)) {
-    return value
-  } else if(field.repeated) {
-    return value.map((value: any) => mapScalarField(field, substitutions, value))
+  if (!field.required && (value === null || value === undefined)) {
+    return value;
+  } else if (field.repeated) {
+    return value.map((value: any) => mapScalarField(field, substitutions, value));
   } else {
-    return mapScalarField(field, substitutions, value)
+    return mapScalarField(field, substitutions, value);
   }
 }
 
-export function mapScalarField(field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
-  if(!field.resolved) {
-    field.resolve()
+export function mapScalarField (field: protobufjs.Field, substitutions: MapingDescriptors, value: any) {
+  if (!field.resolved) {
+    field.resolve();
   }
   const substitution = field.resolvedType && substitutions[field.resolvedType.fullName.slice(1)];
-  if(substitution) {
+  if (substitution) {
     return substitution(value); // TODO: handle recursive substitutions
-  } else if(field.resolvedType && field.resolvedType instanceof protobufjs.Type) {
-    return mapMessage(field.resolvedType, substitutions, value)
+  } else if (field.resolvedType && field.resolvedType instanceof protobufjs.Type) {
+    return mapMessage(field.resolvedType, substitutions, value);
   } else {
-    return value
+    return value;
   }
 }
