@@ -11,10 +11,13 @@ import { createDeclarations, createTypeDictinary } from './declaration-generator
 import { logger } from './logger';
 import { ModuleSpecifier } from './module-specifier';
 import { getSafeNamespaceIdentifier, parseFullyQualifiedName, splitSchemaIntoNamespaces } from './namespaces';
+import { registerResolver } from './resolver';
 import { createSerializerDefinition } from './serializer-definition-generator';
 import { parseSubstitutionsFile } from './substitutions-parser';
 
 const f = ts.factory;
+
+registerResolver();
 
 export async function compileSchema (substitutionsModule: ModuleSpecifier | undefined, protoFilePath: string, outDirPath: string) {
   const { imports, substitutions } = substitutionsModule ? parseSubstitutionsFile(substitutionsModule.resolve()) : { imports: [], substitutions: {} };
