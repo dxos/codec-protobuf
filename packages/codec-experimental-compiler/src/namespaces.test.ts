@@ -6,6 +6,9 @@ import { join } from 'path';
 import * as pb from 'protobufjs';
 
 import { splitSchemaIntoNamespaces } from './namespaces';
+import { registerResolver } from './resolver';
+
+registerResolver();
 
 test('split namespaces', async () => {
   const root = await pb.load(join(__dirname, '../test/schema.proto'));
