@@ -19,11 +19,11 @@ const f = ts.factory;
 
 registerResolver();
 
-export async function compileSchema (substitutionsModule: ModuleSpecifier | undefined, protoFilePath: string, outDirPath: string) {
+export async function compileSchema (substitutionsModule: ModuleSpecifier | undefined, protoFiles: string[], outDirPath: string) {
   const { imports, substitutions } = substitutionsModule ? parseSubstitutionsFile(substitutionsModule.resolve()) : { imports: [], substitutions: {} };
   logger.logParsedSubstitutions(substitutions);
 
-  const root = await protobufjs.load(protoFilePath);
+  const root = await protobufjs.load(protoFiles);
 
   const namespaces = splitSchemaIntoNamespaces(root);
 

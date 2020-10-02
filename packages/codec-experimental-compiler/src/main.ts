@@ -26,16 +26,11 @@ import { compileSchema } from './type-generator';
 
   const { proto, substitutions, outDir } = parser.parse_args();
 
-  if (proto.length > 1) {
-    console.error('Multi-file builds are not supported for now. As a workaround specify a single main .proto file that imports all of the other ones');
-    process.exit(-1);
-  }
-
   const substitutionsModule = substitutions ? ModuleSpecifier.resolveFromFilePath(substitutions, process.cwd()) : undefined;
-  const protoFilePath = resolve(process.cwd(), proto[0]);
+  const protoFilePaths = proto.map((file: string) => resolve(process.cwd(), file));
   const outDirPath = resolve(process.cwd(), outDir);
 
-  logger.logCompilationOptions(substitutionsModule, protoFilePath, outDirPath);
+  logger.logCompilationOptions(substitutionsModule, protoFilePaths, outDirPath);
 
-  compileSchema(substitutionsModule, protoFilePath, outDirPath);
+  compileSchema(substitutionsModule, protoFilePaths, outDirPath);
 })();
