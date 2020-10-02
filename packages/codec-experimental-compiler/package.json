@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "gen": "ts-node src/main.ts test/schema.proto -s test/substitutions.ts -o test/gen",
+    "gen": "ts-node src/main.ts test/schema.proto test/another.proto -s test/substitutions.ts -o test/gen",
     "test": "yarn gen && jest",
     "lint": "eslint 'src/**/*.ts'"
   },
