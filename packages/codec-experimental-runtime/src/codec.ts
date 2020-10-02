@@ -24,28 +24,29 @@ export class Schema<T> {
 
   getCodecForType<K extends keyof T & string> (typeName: K): Codec<T[K]> {
     const type = this._typesRoot.lookupType(typeName);
-    return new Codec(type, this._mapping);
+    return new Codec(type, this._mapping, this);
   }
 
   tryGetCodecForType (typeName: string): Codec {
     const type = this._typesRoot.lookupType(typeName);
-    return new Codec(type, this._mapping);
+    return new Codec(type, this._mapping, this);
   }
 }
 
 export class Codec<T = any> {
   constructor (
     private readonly _type: protobufjs.Type,
-    private readonly _mapping: BidirectionalMapingDescriptors
+    private readonly _mapping: BidirectionalMapingDescriptors,
+    private readonly _schema: Schema<any>
   ) {}
 
   encode (value: T): Uint8Array {
-    const sub = mapMessage(this._type, this._mapping.encode, value);
+    const sub = mapMessage(this._type, this._mapping.encode, value, [this._schema]);
     return this._type.encode(sub).finish();
   }
 
   decode (data: Uint8Array): T {
     const obj = this._type.toObject(this._type.decode(data));
-    return mapMessage(this._type, this._mapping.decode, obj);
+    return mapMessage(this._type, this._mapping.decode, obj, [this._schema]);
   }
 }

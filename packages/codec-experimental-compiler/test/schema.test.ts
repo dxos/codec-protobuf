@@ -14,6 +14,10 @@ test('encode and decode', async () => {
         title: 'Bar',
         key: new MyKey(Buffer.from('foo')),
         type: TaskType.COMPLETED,
+        googleAny: {
+          typeUrl: 'dxos.test.SubstitutedByInterface',
+          foo: 'foo',
+        }
       },
       {
         id: 'baz',

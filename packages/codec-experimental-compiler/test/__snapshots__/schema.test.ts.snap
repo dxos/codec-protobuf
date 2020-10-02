@@ -4,6 +4,8 @@ exports[`definitions 1`] = `
 "dxos/test/another.ts:
 import { MyKey } from \\"../../../my-key\\";
 import { MyInterfaceSubstitution } from \\"../../../my-interface\\";
+import { Schema as CodecSchema } from \\"@dxos/codec-experimental-runtime\\";
+import { DecodedAny } from \\"../../../any\\";
 import * as dxos_test from \\"../test\\";
 import * as dxos_test_any from \\"./any\\";
 import * as google_protobuf from \\"../../google/protobuf\\";
@@ -13,6 +15,8 @@ export interface AnotherMessage {
 dxos/test/any.ts:
 import { MyKey } from \\"../../../my-key\\";
 import { MyInterfaceSubstitution } from \\"../../../my-interface\\";
+import { Schema as CodecSchema } from \\"@dxos/codec-experimental-runtime\\";
+import { DecodedAny } from \\"../../../any\\";
 import * as dxos_test from \\"../test\\";
 import * as dxos_test_another from \\"./another\\";
 import * as google_protobuf from \\"../../google/protobuf\\";
@@ -23,6 +27,8 @@ export interface Any {
 dxos/test.ts:
 import { MyKey } from \\"../../my-key\\";
 import { MyInterfaceSubstitution } from \\"../../my-interface\\";
+import { Schema as CodecSchema } from \\"@dxos/codec-experimental-runtime\\";
+import { DecodedAny } from \\"../../any\\";
 import * as dxos_test_another from \\"./test/another\\";
 import * as dxos_test_any from \\"./test/any\\";
 import * as google_protobuf from \\"../google/protobuf\\";
@@ -53,7 +59,7 @@ export interface AllTypes {
     mappedField?: Partial<Record<string, MyKey>>;
     inner?: AllTypes.Inner;
     myAny?: Any;
-    googleAny?: google_protobuf.Any;
+    googleAny?: DecodedAny;
     importedAny?: dxos_test_any.Any;
 }
 export namespace AllTypes {
@@ -83,7 +89,7 @@ export interface Task {
     title?: string;
     key: MyKey;
     type: TaskType;
-    googleAny?: google_protobuf.Any;
+    googleAny?: DecodedAny;
 }
 export interface TaskList {
     tasks?: Task[];
@@ -95,6 +101,8 @@ export interface SubstitutedByInterface {
 google/protobuf.ts:
 import { MyKey } from \\"../../my-key\\";
 import { MyInterfaceSubstitution } from \\"../../my-interface\\";
+import { Schema as CodecSchema } from \\"@dxos/codec-experimental-runtime\\";
+import { DecodedAny } from \\"../../any\\";
 import * as dxos_test from \\"../dxos/test\\";
 import * as dxos_test_another from \\"../dxos/test/another\\";
 import * as dxos_test_any from \\"../dxos/test/any\\";
@@ -108,6 +116,8 @@ import { Schema } from \\"@dxos/codec-experimental-runtime\\";
 import substitutions from \\"../substitutions\\";
 import { MyKey } from \\"../my-key\\";
 import { MyInterfaceSubstitution } from \\"../my-interface\\";
+import { Schema as CodecSchema } from \\"@dxos/codec-experimental-runtime\\";
+import { DecodedAny } from \\"../any\\";
 import * as dxos_test from \\"./dxos/test\\";
 import * as dxos_test_another from \\"./dxos/test/another\\";
 import * as dxos_test_any from \\"./dxos/test/any\\";
