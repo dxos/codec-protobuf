@@ -23,11 +23,13 @@ export class Schema<T> {
   }
 
   getCodecForType<K extends keyof T & string> (typeName: K): Codec<T[K]> {
+    if(typeof typeName !== 'string') throw new TypeError('Expected `typeName` argument to be a string');
     const type = this._typesRoot.lookupType(typeName);
     return new Codec(type, this._mapping, this);
   }
 
   tryGetCodecForType (typeName: string): Codec {
+    if(typeof typeName !== 'string') throw new TypeError('Expected `typeName` argument to be a string');
     const type = this._typesRoot.lookupType(typeName);
     return new Codec(type, this._mapping, this);
   }
