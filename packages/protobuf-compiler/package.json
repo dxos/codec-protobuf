@@ -1,7 +1,6 @@
 {
-  "name": "@dxos/codec-experimental-compiler",
-  "version": "1.0.6",
-  "main": "index.js",
+  "name": "@dxos/protobuf-compiler",
+  "version": "0.2.0",
   "license": "MIT",
   "scripts": {
     "build": "tsc",

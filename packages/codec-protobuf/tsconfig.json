@@ -1,21 +1,23 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "declaration": true,
-    "sourceMap": true,
+    "composite": true,
     "declarationMap": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
-    "strict": true,
+    "lib": [
+      "ESNext"
+    ],
+    "outDir": "dist",
     "module": "commonjs",
-    "target": "ES2018",
-    "outDir": "dist"
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2018"
   },
   "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
+    "src",
+    "test"
   ]
 }
