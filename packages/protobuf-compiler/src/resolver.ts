@@ -15,11 +15,7 @@ export function createProtoResolver (original: ProtoResolver): ProtoResolver {
       return clasicResolved;
     }
 
-    try {
-      return require.resolve(target, { paths: [dirname(origin)] });
-    } catch {
-      return null;
-    }
+    return require.resolve(target, { paths: [dirname(origin)] });
   };
 }
 
