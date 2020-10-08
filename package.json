@@ -5,12 +5,14 @@
   "scripts": {
     "build": "yarn workspaces run build",
     "test": "yarn workspaces run test",
-    "lint": "yarn workspaces run lint"
+    "lint": "yarn workspaces run lint",
+    "lint:lockfile": "lockfile-lint --path yarn.lock --allowed-hosts npm yarn"
   },
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "lockfile-lint": "^4.3.7"
   }
 }
