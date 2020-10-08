@@ -12,7 +12,7 @@
     "build-protobuf": "./dist/src/main.js"
   },
   "devDependencies": {
-    "@dxos/codec-experimental-runtime": "^1.0.2",
+    "@dxos/codec-protobuf": "^0.2.0",
     "@dxos/eslint-plugin": "^1.0.5",
     "@types/argparse": "^2.0.0",
     "@types/read-pkg": "^5.1.0",
