@@ -2,8 +2,8 @@
 // Copyright 2020 DXOS.org
 //
 
-import protobufjs from 'protobufjs';
 import assert from 'assert';
+import protobufjs from 'protobufjs';
 
 import { Substitutions } from './common';
 
@@ -41,12 +41,12 @@ export function mapField (field: protobufjs.Field, substitutions: MapingDescript
     return value;
   } else if (field.repeated) {
     return value.map((value: any) => mapScalarField(field, substitutions, value, extraArgs));
-  } else if(field.map) {
+  } else if (field.map) {
     assert(field instanceof protobufjs.MapField);
     return Object.fromEntries(
       Object.entries(value)
         .map(([key, value]) => [key, mapScalarField(field, substitutions, value, extraArgs)])
-    )
+    );
   } else {
     return mapScalarField(field, substitutions, value, extraArgs);
   }
