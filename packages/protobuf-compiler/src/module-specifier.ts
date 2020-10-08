@@ -47,7 +47,7 @@ export class ModuleSpecifier {
   }
 }
 
-export const CODEC_MODULE = new ModuleSpecifier('@dxos/codec-experimental-runtime', __dirname);
+export const CODEC_MODULE = new ModuleSpecifier('@dxos/codec-protobuf', __dirname);
 
 function normalizeRelativePath (path: string) {
   if (!path.startsWith('.')) {

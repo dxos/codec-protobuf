@@ -1,6 +1,6 @@
 import { MyKey } from "./my-key";
 import { MyInterfaceSubstitution } from './my-interface'
-import { Schema as CodecSchema } from "@dxos/codec-experimental-runtime";
+import { Schema as CodecSchema } from "@dxos/codec-protobuf";
 import { DecodedAny } from './any';
 
 export default {
