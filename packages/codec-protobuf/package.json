@@ -9,6 +9,10 @@
     "test": "echo No tests",
     "lint": "eslint 'src/**/*.ts'"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "devDependencies": {
     "@dxos/eslint-plugin": "^1.0.5",
     "eslint": "^7.10.0",

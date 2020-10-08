@@ -11,6 +11,10 @@
   "bin": {
     "build-protobuf": "./dist/src/main.js"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "devDependencies": {
     "@dxos/codec-protobuf": "^0.2.0",
     "@dxos/eslint-plugin": "^1.0.5",
