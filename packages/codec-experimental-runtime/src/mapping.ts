@@ -3,6 +3,7 @@
 //
 
 import protobufjs from 'protobufjs';
+import assert from 'assert';
 
 import { Substitutions } from './common';
 
@@ -36,11 +37,16 @@ export function mapMessage (type: protobufjs.Type, substitutions: MapingDescript
 }
 
 export function mapField (field: protobufjs.Field, substitutions: MapingDescriptors, value: any, extraArgs: any[]) {
-  // TODO: handle map fields
   if (!field.required && (value === null || value === undefined)) {
     return value;
   } else if (field.repeated) {
     return value.map((value: any) => mapScalarField(field, substitutions, value, extraArgs));
+  } else if(field.map) {
+    assert(field instanceof protobufjs.MapField);
+    return Object.fromEntries(
+      Object.entries(value)
+        .map(([key, value]) => [key, mapScalarField(field, substitutions, value, extraArgs)])
+    )
   } else {
     return mapScalarField(field, substitutions, value, extraArgs);
   }

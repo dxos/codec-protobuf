@@ -13,7 +13,7 @@ message Any {
   string foo = 1;
 }
 
-message AllTypes {
+message Scalars {
   double doubleField = 1;
   float floatField = 2;
   int32 int32Field = 3;
@@ -29,7 +29,9 @@ message AllTypes {
   bool boolField = 13;
   string stringField = 14;
   bytes bytesField = 15;
+}
 
+message ComplexFields {
   repeated Key repeatedField = 16;
   required Key requiredField = 17;
   map<string, Key> mappedField = 18;
@@ -52,10 +54,10 @@ message AllTypes {
 }
 
 message Outer {
-  AllTypes.Inner inner = 1;
+  ComplexFields.Inner inner = 1;
   
   message Inner {
-    AllTypes.InnerEnum inner = 1;
+    ComplexFields.InnerEnum inner = 1;
   }
 }
 
