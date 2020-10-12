@@ -1454,9 +1454,9 @@
     "@sinonjs/commons" "^1.7.0"
 
 "@types/argparse@^2.0.0":
-  version "2.0.1"
-  resolved "https://registry.npmjs.org/@types/argparse/-/argparse-2.0.1.tgz#7dd9e4d0ff72ff9eb9231393f910236d107e3341"
-  integrity sha512-C4jqpdasIkxgjHEfAtQEx59/rprJxP4R2GgPW6xdKeOSmEPf3jvQB706R7hebZAimKWPMU88l9MchWxtAcgT3g==
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/argparse/-/argparse-2.0.2.tgz#4eb7e626975ff2526a08a12db5e6cc303807e657"
+  integrity sha512-z5yKiFv9jZLXfjLzbPq2Zv0PboFDBZ2NKNs7kC/+AIfqKYcGqGw2ukL0q0NbgCs/ShTTRx+A0/VR+DLnGhAWtw==
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.10"
