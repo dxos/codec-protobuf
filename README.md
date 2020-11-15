@@ -52,7 +52,6 @@ Codec allows associating any custom runtime type with a protobuf definition. In 
 
 To use use substitutions create a new file that will act as an association table:
 
-
 ```typescript
 // src/proto/substitutions.ts
 
@@ -64,6 +63,15 @@ export default {
     decode: (value: any) => new MyKey(value.data),
   },
 };
+```
+
+
+```protobuf
+package dxos.test;
+
+message Key {
+  bytes data = 1;
+}
 ```
 
 Pass a path to this file to the CLI tool like so:
