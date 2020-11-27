@@ -1,6 +1,6 @@
 {
   "name": "@dxos/protobuf-compiler",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "scripts": {
     "build": "tsc",
@@ -16,7 +16,7 @@
     "src"
   ],
   "devDependencies": {
-    "@dxos/codec-protobuf": "^1.1.0",
+    "@dxos/codec-protobuf": "^1.1.1",
     "@dxos/eslint-plugin": "^1.0.5",
     "@types/argparse": "^2.0.0",
     "@types/read-pkg": "^5.1.0",
