@@ -272,9 +272,9 @@
     minimist "^1.2.0"
 
 "@dxos/eslint-plugin@^1.0.5":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/eslint-plugin/-/eslint-plugin-1.0.6.tgz#93b117ddfcfad7927569212aa8c926dcd55880ba"
-  integrity sha512-7bi26uVN9hqXst4qXyfKJU3BshIe6hKnXAR0YFpXp2WH24rRTSRpNvOuYGt83itVqixfC2CP3LWmvE3wxBcj0w==
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@dxos/eslint-plugin/-/eslint-plugin-1.0.8.tgz#8c233c78a314167d13978a1ad1b4f79aa5c41b4f"
+  integrity sha512-VjPgvcAqrXYB+OL4iMKHRvBSoB7k+pjDkhX04oNwmouwvaFUbbzOlTt+4TdPBZmBxEGSIKz04uX4t99EobuCiA==
   dependencies:
     "@rushstack/eslint-patch" "^1.0.3"
     "@typescript-eslint/eslint-plugin" "^3.10.1"
