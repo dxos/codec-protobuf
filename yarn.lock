@@ -272,11 +272,11 @@
     minimist "^1.2.0"
 
 "@dxos/eslint-plugin@^1.0.5":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@dxos/eslint-plugin/-/eslint-plugin-1.0.6.tgz#93b117ddfcfad7927569212aa8c926dcd55880ba"
-  integrity sha512-7bi26uVN9hqXst4qXyfKJU3BshIe6hKnXAR0YFpXp2WH24rRTSRpNvOuYGt83itVqixfC2CP3LWmvE3wxBcj0w==
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@dxos/eslint-plugin/-/eslint-plugin-1.0.9.tgz#36e32ee0b22a50e85cb5e334f7732186eb0aa9d6"
+  integrity sha512-Smk3kLXAeSxCL035Q5YkORY8wlvKkG8BOZIqUyAaD/cdifBzjwkQApK4NFokgPWf12YX/7E0PcALJxuu9p1XSQ==
   dependencies:
-    "@rushstack/eslint-patch" "^1.0.3"
+    "@rushstack/eslint-patch" "^1.0.6"
     "@typescript-eslint/eslint-plugin" "^3.10.1"
     "@typescript-eslint/parser" "^3.10.1"
     eslint-config-semistandard "^15.0.1"
@@ -1450,10 +1450,10 @@
   resolved "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570"
   integrity sha1-p3c2C1s5oaLlEG+OhY8v0tBgxXA=
 
-"@rushstack/eslint-patch@^1.0.3":
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/@rushstack/eslint-patch/-/eslint-patch-1.0.5.tgz#aed6bc40ea693d7cf78242c595c0fa8b48b9548a"
-  integrity sha512-B/ebr3o/Irp/hBKRsHCqh/scUTWplQTkgwHoslLsPXR/cZm0TldhE8L57/sfzfCEMCxV7HGpysoHgHlE/DykiA==
+"@rushstack/eslint-patch@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.0.6.tgz#023d72a5c4531b4ce204528971700a78a85a0c50"
+  integrity sha512-Myxw//kzromB9yWgS8qYGuGVf91oBUUJpNvy5eM50sqvmKLbKjwLxohJnkWGTeeI9v9IBMtPLxz5Gc60FIfvCA==
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.1"
